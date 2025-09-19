@@ -1,0 +1,45 @@
+{
+  "name": "ai-language-learning-companion",
+  "version": "1.0.0",
+  "description": "AI-Powered Language Learning Companion with AWS AI services",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "deploy": "npm run deploy:backend && npm run deploy:frontend",
+    "deploy:backend": "cd backend && npm run deploy",
+    "deploy:frontend": "cd frontend && npm run deploy",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "setup-db": "node scripts/setup-dynamodb.js",
+    "setup-lex": "node scripts/setup-lex-bot.js",
+    "test-integration": "node scripts/test-complete-integration.js",
+    "test-user": "node scripts/test-user-management.js",
+    "test-conversation": "node scripts/test-conversation-engine.js",
+    "test-speech": "node scripts/test-pronunciation-feedback.js",
+    "test-adaptive": "node scripts/test-adaptive-learning.js",
+    "test-roleplay": "node scripts/test-roleplay-scenarios.js"
+  },
+  "keywords": [
+    "ai",
+    "language-learning",
+    "aws",
+    "conversation",
+    "education"
+  ],
+  "author": "Your Company",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/graceful-fs": "^4.1.9",
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
