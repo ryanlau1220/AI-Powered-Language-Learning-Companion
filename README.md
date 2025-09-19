@@ -169,6 +169,17 @@ flowchart TD
     K --> L[API Gateway]
     L --> M[Frontend Update]
     
+    %% CloudWatch Logs connections
+    B --> N[CloudWatch Logs]
+    C --> N
+    E --> N
+    F --> N
+    G --> N
+    H --> N
+    I --> N
+    J --> N
+    K --> N
+    
     subgraph "AWS AI Services"
         E
         F
@@ -180,6 +191,6 @@ flowchart TD
         B
         C
         I
-        N[CloudWatch Logs]
+        N
     end
 ```
