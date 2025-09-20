@@ -15,14 +15,17 @@ const logger = winston.createLogger({
 });
 
 const errorHandler = (err, req, res, next) => {
-  logger.error('Error occurred:', {
-    error: err.message,
-    stack: err.stack,
+  // Clean error logging
+  logger.error(`❌ ${err.message}`, {
     url: req.url,
     method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent')
+    status: err.status || 500
   });
+  
+  // Only log full stack in development
+  if (process.env.NODE_ENV === 'development') {
+    logger.debug('Stack trace:', err.stack);
+  }
 
   // Default error response
   let statusCode = 500;

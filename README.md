@@ -7,8 +7,8 @@ Complete AI-powered language learning platform with real-time conversation, pron
 # Setup
 cp env.example .env
 npm install
-cd backend && npm install
-cd ../frontend && npm install
+cd backend ; npm install
+cd ../frontend ; npm install
 
 # AWS Services Setup
 npm run setup-db    # Create DynamoDB tables
@@ -30,8 +30,8 @@ npm run test-roleplay          # Test role-playing scenarios
 
 # Deployment
 npm run deploy                 # Deploy complete system
-cd backend && npm run deploy  # Backend only
-cd frontend && npm run build  # Frontend build
+cd backend ; npm run deploy  # Backend only
+cd frontend ; npm run build  # Frontend build
 aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ```
 

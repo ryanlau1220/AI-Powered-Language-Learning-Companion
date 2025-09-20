@@ -5,7 +5,8 @@ require('dotenv').config();
 
 const conversationRoutes = require('./handlers/conversation');
 const speechRoutes = require('./handlers/speech');
-const userRoutes = require('./handlers/user');
+const writingRoutes = require('./handlers/writing');
+const readingRoutes = require('./handlers/reading');
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/requestLogger');
 
@@ -23,14 +24,15 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    region: process.env.REGION || 'ap-southeast-5'
+    region: process.env.REGION || 'ap-southeast-1'
   });
 });
 
 // Routes
 app.use('/conversation', conversationRoutes);
 app.use('/speech', speechRoutes);
-app.use('/user', userRoutes);
+app.use('/writing', writingRoutes);
+app.use('/reading', readingRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -46,10 +48,30 @@ app.use('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`AWS Region: ${process.env.REGION || 'ap-southeast-5'}`);
+  const server = app.listen(PORT, () => {
+    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌍 AWS Region: ${process.env.AWS_REGION || 'ap-southeast-1'}`);
+    console.log(`🧠 Bedrock Region: ${process.env.BEDROCK_REGION || 'us-east-1'}`);
+    console.log('The frontend is running on http://localhost:3001');
+  });
+
+  // Handle server errors
+  server.on('error', (error) => {
+    console.error('❌ Server error:', error.message);
+    process.exit(1);
+  });
+
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error.message);
+    process.exit(1);
+  });
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection:', reason);
+    process.exit(1);
   });
 }
 

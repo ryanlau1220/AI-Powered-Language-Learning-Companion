@@ -1,24 +1,31 @@
 const AWS = require('aws-sdk');
+require('dotenv').config();
 
-// Configure Bedrock for Singapore region
-const singaporeRegion = process.env.BEDROCK_REGION || 'ap-southeast-1';
+// Configure Bedrock for US East region (N. Virginia)
+const usEastRegion = process.env.BEDROCK_REGION || 'us-east-1';
+console.log('🔍 BedrockService - BEDROCK_REGION from env:', process.env.BEDROCK_REGION);
+console.log('🔍 BedrockService - Using region:', usEastRegion);
 
 // Configure AWS with explicit credentials
 AWS.config.update({
-  region: singaporeRegion,
+  region: usEastRegion,
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
 class BedrockService {
   constructor() {
-    this.bedrock = new AWS.BedrockRuntime({ region: singaporeRegion });
-    this.bedrockAgent = new AWS.BedrockAgent({ region: singaporeRegion });
+    this.bedrock = new AWS.BedrockRuntime({ region: usEastRegion });
+    this.bedrockAgent = new AWS.BedrockAgent({ region: usEastRegion });
   }
 
   async generateInitialResponse({ scenario, language, proficiencyLevel }) {
+    console.log('🚀 generateInitialResponse called with:', { scenario, language, proficiencyLevel });
+    console.log('🔍 BEDROCK_MODEL_ID from env:', process.env.BEDROCK_MODEL_ID);
+    
     try {
       const prompt = this.buildInitialPrompt({ scenario, language, proficiencyLevel });
+      console.log('📝 Generated prompt:', prompt.substring(0, 100) + '...');
       
       const response = await this.invokeModel(prompt);
       
@@ -115,33 +122,51 @@ class BedrockService {
   }
 
   async invokeModel(prompt) {
+    const modelId = process.env.BEDROCK_MODEL_ID || 'amazon.nova-pro-v1:0';
+    
     try {
-      const modelId = process.env.BEDROCK_MODEL_ID || 'amazon.nova-pro-v1:0';
-      
       const params = {
         modelId: modelId,
+        contentType: 'application/json',
         body: JSON.stringify({
           messages: [
             {
               role: "user",
-              content: prompt
+              content: [
+                {
+                  text: prompt
+                }
+              ]
             }
-          ],
-          max_tokens: 1000,
-          temperature: 0.7
+          ]
         })
       };
 
       const result = await this.bedrock.invokeModel(params).promise();
       const response = JSON.parse(result.body.toString());
       
+      // Handle different response formats for different models
+      let text;
+      if (response.content && response.content[0] && response.content[0].text) {
+        // Claude format
+        text = response.content[0].text;
+      } else if (response.output && response.output.message && response.output.message.content && response.output.message.content[0] && response.output.message.content[0].text) {
+        // Nova format
+        text = response.output.message.content[0].text;
+      } else {
+        text = "I'm sorry, I couldn't process your request properly.";
+      }
+      
       return {
-        text: response.output.message.content[0].text,
-        confidence: 0.8, // Nova doesn't provide confidence scores
-        sentiment: this.analyzeSentiment(response.output.message.content[0].text)
+        text: text,
+        confidence: 0.8,
+        sentiment: this.analyzeSentiment(text)
       };
     } catch (error) {
       console.error('Error invoking Bedrock model:', error);
+      console.error('Model ID used:', modelId);
+      console.error('Error details:', error.message);
+      console.error('Error code:', error.code);
       // Return fallback response
       return this.getFallbackResponse();
     }
@@ -281,6 +306,333 @@ Format your response as JSON with these fields:
       text: randomResponse,
       confidence: 0.5,
       sentiment: 'neutral'
+    };
+  }
+
+  // New AI-powered methods for comprehensive language learning
+
+  async analyzeWriting({ text, language, userId }) {
+    try {
+      const prompt = `You are an expert ${language} writing tutor. Analyze the following text and provide comprehensive feedback.
+
+Text: "${text}"
+Language: ${language}
+
+Provide detailed analysis including:
+1. Grammar corrections with explanations
+2. Vocabulary suggestions for improvement
+3. Writing style and clarity assessment
+4. Overall writing score (0-100)
+5. Specific improvement recommendations
+
+Format as JSON with:
+- grammarSuggestions: array of {text, suggestion, explanation, severity}
+- overallScore: number (0-100)
+- wordCount: number
+- readabilityScore: number (0-100)
+- vocabularyLevel: string
+- improvements: array of strings`;
+
+      const response = await this.invokeModel(prompt);
+      return this.parseWritingAnalysis(response);
+    } catch (error) {
+      console.error('Error analyzing writing:', error);
+      return this.getFallbackWritingAnalysis(text, language);
+    }
+  }
+
+  async generateReadingContent({ level, topic, language, userId }) {
+    try {
+      const prompt = `Generate engaging reading content for language learning.
+
+Language: ${language}
+Level: ${level}
+Topic: ${topic}
+
+Create:
+1. A compelling article (200-300 words)
+2. 3-5 comprehension quiz questions
+3. 5-8 vocabulary flashcards
+4. A summary of key points
+5. Learning objectives
+
+Format as JSON with:
+- title: string
+- content: string
+- level: string
+- wordCount: number
+- estimatedTime: number
+- vocabulary: array of {word, definition, example}
+- summary: string
+- keyPoints: array of strings
+- quiz: array of {question, options, correctAnswer, explanation}
+- flashcards: array of {front, back, difficulty}`;
+
+      const response = await this.invokeModel(prompt);
+      return this.parseReadingContent(response);
+    } catch (error) {
+      console.error('Error generating reading content:', error);
+      return this.getFallbackReadingContent(level, topic, language);
+    }
+  }
+
+  async analyzePronunciation({ audioData, text, language }) {
+    try {
+      // This would integrate with Amazon Transcribe for actual pronunciation analysis
+      // For now, return a basic analysis structure
+      return {
+        overallScore: 0,
+        wordScores: [],
+        generalFeedback: ['Pronunciation analysis requires audio input. Please record your speech.'],
+        fluencyScore: 0,
+        paceScore: 0,
+        clarityScore: 0,
+        improvements: ['Please provide audio data for pronunciation analysis.']
+      };
+    } catch (error) {
+      console.error('Error analyzing pronunciation:', error);
+      throw new Error('Failed to analyze pronunciation: ' + error.message);
+    }
+  }
+
+  async generateQuiz({ content, language, difficulty, userId }) {
+    try {
+      const prompt = `Generate a comprehensive quiz based on the reading content.
+
+Content: "${content.substring(0, 500)}..."
+Language: ${language}
+Difficulty: ${difficulty}
+
+Create 5-8 multiple choice questions that test:
+1. Reading comprehension
+2. Vocabulary understanding
+3. Critical thinking
+4. Language usage
+
+Format as JSON with:
+- questions: array of {question, options, correctAnswer, explanation, difficulty}`;
+
+      const response = await this.invokeModel(prompt);
+      return this.parseQuiz(response);
+    } catch (error) {
+      console.error('Error generating quiz:', error);
+      return this.getFallbackQuiz(content, language, difficulty);
+    }
+  }
+
+  async generateFlashcards({ content, language, count, userId }) {
+    try {
+      const prompt = `Generate vocabulary flashcards from the reading content.
+
+Content: "${content.substring(0, 500)}..."
+Language: ${language}
+Count: ${count}
+
+Create flashcards covering:
+1. Key vocabulary words
+2. Important phrases
+3. Grammar concepts
+4. Cultural references
+
+Format as JSON with:
+- flashcards: array of {front, back, difficulty, category}`;
+
+      const response = await this.invokeModel(prompt);
+      return this.parseFlashcards(response);
+    } catch (error) {
+      console.error('Error generating flashcards:', error);
+      return this.getFallbackFlashcards(content, language, count);
+    }
+  }
+
+  async summarizeContent({ content, language, length, userId }) {
+    try {
+      const prompt = `Summarize the following content for language learning.
+
+Content: "${content.substring(0, 1000)}..."
+Language: ${language}
+Length: ${length}
+
+Create a summary that:
+1. Captures main ideas
+2. Uses appropriate vocabulary for the level
+3. Highlights key learning points
+4. Maintains engagement
+
+Format as JSON with:
+- summary: string
+- keyPoints: array of strings
+- vocabulary: array of {word, definition}
+- learningObjectives: array of strings`;
+
+      const response = await this.invokeModel(prompt);
+      return this.parseSummary(response);
+    } catch (error) {
+      console.error('Error summarizing content:', error);
+      return this.getFallbackSummary(content, language, length);
+    }
+  }
+
+  // Helper methods for parsing AI responses
+  parseWritingAnalysis(response) {
+    try {
+      const data = JSON.parse(response.text);
+      return {
+        grammarSuggestions: data.grammarSuggestions || [],
+        overallScore: data.overallScore || 75,
+        wordCount: data.wordCount || 0,
+        readabilityScore: data.readabilityScore || 70,
+        vocabularyLevel: data.vocabularyLevel || 'intermediate',
+        improvements: data.improvements || []
+      };
+    } catch (error) {
+      return this.getFallbackWritingAnalysis('', 'en');
+    }
+  }
+
+  parseReadingContent(response) {
+    try {
+      const data = JSON.parse(response.text);
+      return {
+        title: data.title || 'Reading Practice',
+        content: data.content || 'Sample reading content...',
+        level: data.level || 'intermediate',
+        wordCount: data.wordCount || 250,
+        estimatedTime: data.estimatedTime || 3,
+        vocabulary: data.vocabulary || [],
+        summary: data.summary || 'Summary of the reading content.',
+        keyPoints: data.keyPoints || [],
+        quiz: data.quiz || [],
+        flashcards: data.flashcards || []
+      };
+    } catch (error) {
+      return this.getFallbackReadingContent('intermediate', 'general', 'en');
+    }
+  }
+
+  parseQuiz(response) {
+    try {
+      const data = JSON.parse(response.text);
+      return data.questions || [];
+    } catch (error) {
+      return this.getFallbackQuiz('', 'en', 'intermediate');
+    }
+  }
+
+  parseFlashcards(response) {
+    try {
+      const data = JSON.parse(response.text);
+      return data.flashcards || [];
+    } catch (error) {
+      return this.getFallbackFlashcards('', 'en', 5);
+    }
+  }
+
+  parseSummary(response) {
+    try {
+      const data = JSON.parse(response.text);
+      return {
+        summary: data.summary || 'Summary not available',
+        keyPoints: data.keyPoints || [],
+        vocabulary: data.vocabulary || [],
+        learningObjectives: data.learningObjectives || []
+      };
+    } catch (error) {
+      return this.getFallbackSummary('', 'en', 'medium');
+    }
+  }
+
+  // Fallback methods for when AI services are unavailable
+  getFallbackWritingAnalysis(text, language) {
+    return {
+      grammarSuggestions: [
+        {
+          text: 'This is a sample suggestion',
+          suggestion: 'This is a better suggestion',
+          explanation: 'This explains why the change is recommended',
+          severity: 'warning'
+        }
+      ],
+      overallScore: 75,
+      wordCount: text.split(/\s+/).length,
+      readabilityScore: 70,
+      vocabularyLevel: 'Intermediate',
+      improvements: [
+        'Try using more varied sentence structures',
+        'Consider adding more descriptive adjectives',
+        'Work on improving paragraph flow'
+      ]
+    };
+  }
+
+  getFallbackReadingContent(level, topic, language) {
+    return {
+      title: 'Sample Reading Content',
+      content: 'This is sample reading content for language learning practice. It contains various vocabulary words and grammar structures to help improve your language skills.',
+      level: level,
+      wordCount: 50,
+      estimatedTime: 2,
+      vocabulary: [
+        { word: 'sample', definition: 'example', example: 'This is a sample text.' },
+        { word: 'practice', definition: 'exercise', example: 'Practice makes perfect.' }
+      ],
+      summary: 'This is a sample reading passage for language learning.',
+      keyPoints: ['Key point 1', 'Key point 2', 'Key point 3'],
+      quiz: [
+        {
+          question: 'What is this text about?',
+          options: ['Language learning', 'Cooking', 'Sports'],
+          correctAnswer: 0,
+          explanation: 'The text is about language learning practice.'
+        }
+      ],
+      flashcards: [
+        { front: 'What does "sample" mean?', back: 'Example', difficulty: 'easy' }
+      ]
+    };
+  }
+
+  getFallbackPronunciationAnalysis(text, language) {
+    return {
+      overallScore: 0,
+      wordScores: [],
+      generalFeedback: ['Unable to analyze pronunciation. Please try again.'],
+      fluencyScore: 0,
+      paceScore: 0,
+      clarityScore: 0,
+      improvements: ['Please check your connection and try again.']
+    };
+  }
+
+  getFallbackQuiz(content, language, difficulty) {
+    return [
+      {
+        question: 'What is the main topic of this text?',
+        options: ['Language learning', 'Technology', 'Travel'],
+        correctAnswer: 0,
+        explanation: 'The text focuses on language learning concepts.',
+        difficulty: difficulty
+      }
+    ];
+  }
+
+  getFallbackFlashcards(content, language, count) {
+    return [
+      {
+        front: 'What does "learn" mean?',
+        back: 'To gain knowledge or skill',
+        difficulty: 'easy',
+        category: 'vocabulary'
+      }
+    ];
+  }
+
+  getFallbackSummary(content, language, length) {
+    return {
+      summary: 'This is a sample summary of the content.',
+      keyPoints: ['Key point 1', 'Key point 2'],
+      vocabulary: [{ word: 'example', definition: 'sample' }],
+      learningObjectives: ['Understand the main ideas', 'Learn new vocabulary']
     };
   }
 

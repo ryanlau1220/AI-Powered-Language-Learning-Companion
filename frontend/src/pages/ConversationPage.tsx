@@ -9,7 +9,7 @@ const ConversationPage: React.FC = () => {
 
   const handleMessageSent = (message: string) => {
     console.log('Message sent:', message)
-    // TODO: Send to backend API
+    // Message handling is now done in ConversationInterface component
   }
 
   return (

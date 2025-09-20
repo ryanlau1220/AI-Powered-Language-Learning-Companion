@@ -15,8 +15,8 @@ provider:
     LEX_BOT_ID: ${env:LEX_BOT_ID, 'your-lex-bot-id'}
     LEX_BOT_ALIAS_ID: ${env:LEX_BOT_ALIAS_ID, 'your-lex-alias-id'}
     LEX_REGION: ap-southeast-1
-    BEDROCK_MODEL_ID: ${env:BEDROCK_MODEL_ID, 'amazon.nova-pro-v1:0'}
-    BEDROCK_REGION: ap-southeast-1
+    BEDROCK_MODEL_ID: ${env:BEDROCK_MODEL_ID, 'us.nova-pro-v1:0'}
+    BEDROCK_REGION: us-east-1
     TRANSCRIBE_LANGUAGE_CODE: ${env:TRANSCRIBE_LANGUAGE_CODE, 'en-US'}
     TRANSCRIBE_REGION: ap-southeast-1
     POLLY_VOICE_ID: ${env:POLLY_VOICE_ID, 'Joanna'}
@@ -67,7 +67,7 @@ functions:
           cors: true
     environment:
       LEX_REGION: ap-southeast-1  # Singapore region for AI services
-      BEDROCK_REGION: ap-southeast-1
+      BEDROCK_REGION: us-east-1
       TRANSCRIBE_REGION: ap-southeast-1
       POLLY_REGION: ap-southeast-1
 
@@ -80,7 +80,7 @@ functions:
           cors: true
     environment:
       LEX_REGION: ap-southeast-1
-      BEDROCK_REGION: ap-southeast-1
+      BEDROCK_REGION: us-east-1
 
   speech:
     handler: src/handlers/speechLambda.handler

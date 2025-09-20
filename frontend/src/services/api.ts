@@ -10,28 +10,11 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
+// Simple response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
-    }
+    console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -41,11 +24,7 @@ export const apiService = {
   // Health check
   health: () => api.get('/health'),
 
-  // User management
-  registerUser: (userData: any) => api.post('/user/register', userData),
-  getUser: (userId: string) => api.get(`/user/profile?userId=${userId}`),
-  updateUser: (userId: string, userData: any) => api.put('/user/profile', { userId, ...userData }),
-  getUserProgress: (userId: string) => api.get(`/user/progress?userId=${userId}`),
+  // User management (simplified - no authentication required)
 
   // Conversation management
   startConversation: (conversationData: any) => api.post('/conversation/start', conversationData),
@@ -55,9 +34,25 @@ export const apiService = {
     api.get(`/conversation?userId=${userId}&limit=${limit}&offset=${offset}`),
 
   // Speech services
-  transcribeAudio: (audioData: any) => api.post('/speech/transcribe', audioData),
+  transcribeAudio: (audioData: any) => api.post('/speech/transcribe', audioData, { timeout: 60000 }), // 60 seconds for transcription
   synthesizeSpeech: (textData: any) => api.post('/speech/synthesize', textData),
   getPronunciationFeedback: (feedbackData: any) => api.post('/speech/pronunciation-feedback', feedbackData),
+  analyzePronunciation: (pronunciationData: any) => api.post('/speech/analyze-pronunciation', pronunciationData),
+
+  // Writing services
+  analyzeWriting: (writingData: any) => api.post('/writing/analyze', writingData),
+
+  // Reading services
+  analyzeContent: (formData: FormData) => api.post('/reading/analyze', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000 // 60 seconds for file processing
+  }),
+  generateReadingContent: (contentData: any) => api.post('/reading/content', contentData),
+  generateFlashcards: (flashcardData: any) => api.post('/reading/flashcards', flashcardData),
+  generateQuiz: (quizData: any) => api.post('/reading/quiz', quizData),
+  answerQuestion: (questionData: any) => api.post('/reading/answer', questionData),
+
+  // Progress services (simplified - no user tracking required)
 };
 
 export default api;

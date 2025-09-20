@@ -1,11 +1,15 @@
 const winston = require('winston');
 
-// Configure logger
+// Configure logger with cleaner output
 const logger = winston.createLogger({
-  level: 'info',
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
   format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
+    winston.format.timestamp({ format: 'HH:mm:ss' }),
+    winston.format.colorize(),
+    winston.format.printf(({ timestamp, level, message, ...meta }) => {
+      const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+      return `${timestamp} [${level}] ${message} ${metaStr}`;
+    })
   ),
   transports: [
     new winston.transports.Console()
@@ -15,27 +19,20 @@ const logger = winston.createLogger({
 const requestLogger = (req, res, next) => {
   const start = Date.now();
   
-  // Log request
-  logger.info('Request received', {
-    method: req.method,
-    url: req.url,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    timestamp: new Date().toISOString()
-  });
+  // Only log important requests in development
+  if (process.env.NODE_ENV === 'development' && !req.url.includes('/health')) {
+    logger.info(`→ ${req.method} ${req.url}`);
+  }
 
   // Override res.end to log response
   const originalEnd = res.end;
   res.end = function(chunk, encoding) {
     const duration = Date.now() - start;
     
-    logger.info('Response sent', {
-      method: req.method,
-      url: req.url,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString()
-    });
+    // Only log errors and slow requests
+    if (res.statusCode >= 400 || duration > 1000) {
+      logger.warn(`← ${req.method} ${req.url} ${res.statusCode} (${duration}ms)`);
+    }
 
     originalEnd.call(this, chunk, encoding);
   };

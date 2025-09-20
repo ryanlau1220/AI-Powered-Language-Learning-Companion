@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+require('dotenv').config();
 
 // Configure DynamoDB for Malaysia region
 const malaysiaRegion = process.env.REGION || 'ap-southeast-5';

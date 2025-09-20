@@ -34,6 +34,16 @@ router.post('/synthesize', authenticateUser, async (req, res) => {
     const { text, voiceId, languageCode } = req.body;
     const userId = req.user.userId;
     
+    console.log('Speech synthesis request body:', req.body);
+    console.log('Text parameter:', text);
+    
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required for speech synthesis'
+      });
+    }
+    
     const audioData = await speechService.synthesizeSpeech({
       text,
       voiceId,
@@ -76,6 +86,32 @@ router.post('/pronunciation-feedback', authenticateUser, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get pronunciation feedback'
+    });
+  }
+});
+
+// Analyze pronunciation with detailed feedback
+router.post('/analyze-pronunciation', authenticateUser, async (req, res) => {
+  try {
+    const { audioData, text, language } = req.body;
+    const userId = req.user.userId;
+    
+    const analysis = await speechService.analyzePronunciation({
+      audioData,
+      text,
+      language,
+      userId
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: analysis
+    });
+  } catch (error) {
+    console.error('Error analyzing pronunciation:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze pronunciation'
     });
   }
 });

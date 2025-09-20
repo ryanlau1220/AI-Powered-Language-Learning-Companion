@@ -3,7 +3,8 @@ const Joi = require('joi');
 const validateUserRegistration = (req, res, next) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
-    name: Joi.string().min(2).max(100).required(),
+    username: Joi.string().min(2).max(100).required(),
+    password: Joi.string().min(6).required(),
     nativeLanguage: Joi.string().length(2).optional(),
     targetLanguages: Joi.array().items(Joi.string().length(2)).min(1).optional(),
     proficiencyLevels: Joi.object().pattern(
@@ -12,10 +13,12 @@ const validateUserRegistration = (req, res, next) => {
     ).optional(),
     interests: Joi.array().items(Joi.string()).optional(),
     learningGoals: Joi.array().items(Joi.string()).optional(),
-    voiceId: Joi.string().optional(),
-    speakingSpeed: Joi.string().valid('slow', 'normal', 'fast').optional(),
-    feedbackLevel: Joi.string().valid('minimal', 'moderate', 'detailed').optional(),
-    scenarioPreferences: Joi.array().items(Joi.string()).optional()
+    preferences: Joi.object({
+      voiceId: Joi.string().optional(),
+      speakingSpeed: Joi.string().valid('slow', 'normal', 'fast').optional(),
+      feedbackLevel: Joi.string().valid('minimal', 'moderate', 'detailed').optional(),
+      scenarioPreferences: Joi.array().items(Joi.string()).optional()
+    }).optional()
   });
 
   const { error } = schema.validate(req.body);

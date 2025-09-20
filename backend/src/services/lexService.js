@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk');
+require('dotenv').config();
 
 // Configure Lex for Singapore region
 const singaporeRegion = process.env.LEX_REGION || 'ap-southeast-1';
@@ -65,50 +66,15 @@ class LexService {
           sessionState: result.sessionState || {}
         };
       } catch (lexError) {
-        console.log('Lex bot not ready, using mock response:', lexError.message);
-        return this.getMockLexResponse(message);
+        console.error('Lex bot error:', lexError.message);
+        throw new Error('Failed to process message with Lex: ' + lexError.message);
       }
     } catch (error) {
       console.error('Error processing message with Lex:', error);
-      // Return fallback response
-      return this.getMockLexResponse(message);
+      throw new Error('Failed to process message with Lex: ' + error.message);
     }
   }
 
-  getMockLexResponse(message) {
-    // Mock response for development
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
-      return {
-        intent: 'Greeting',
-        confidence: 'Confirmed',
-        slots: {},
-        sessionState: {}
-      };
-    } else if (lowerMessage.includes('help')) {
-      return {
-        intent: 'Help',
-        confidence: 'Confirmed',
-        slots: {},
-        sessionState: {}
-      };
-    } else if (lowerMessage.includes('goodbye') || lowerMessage.includes('bye')) {
-      return {
-        intent: 'Goodbye',
-        confidence: 'Confirmed',
-        slots: {},
-        sessionState: {}
-      };
-    } else {
-      return {
-        intent: 'General',
-        confidence: 'Confirmed',
-        slots: {},
-        sessionState: {}
-      };
-    }
-  }
 
   async createBot(botName, languageCode = 'en_US') {
     try {

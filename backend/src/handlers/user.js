@@ -6,9 +6,12 @@ const { validateUserRegistration, validateUserUpdate } = require('../middleware/
 // Register new user
 router.post('/register', validateUserRegistration, async (req, res) => {
   try {
+    console.log('Registration request received:', req.body);
     const userData = req.body;
     
+    console.log('Calling userService.createUser with:', userData);
     const user = await userService.createUser(userData);
+    console.log('User created successfully:', user);
     
     res.status(201).json({
       success: true,
@@ -16,9 +19,38 @@ router.post('/register', validateUserRegistration, async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating user:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      error: 'Failed to create user'
+      error: 'Failed to create user',
+      details: error.message
+    });
+  }
+});
+
+// Login user
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required'
+      });
+    }
+    
+    const result = await userService.loginUser({ email, password });
+    
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res.status(401).json({
+      success: false,
+      error: error.message || 'Login failed'
     });
   }
 });
