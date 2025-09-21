@@ -40,7 +40,7 @@
       "speaking": {
         "title": "语音大师",
         "description": "通过AI智能反馈掌握发音和对话技巧"
-      },
+      }
     }
   },
   "conversation": {
@@ -165,7 +165,6 @@
         "title": "语音大师",
         "description": "通过AI智能反馈掌握发音和对话技巧"
       },
-,
       "listening": {
         "title": "听力练习",
         "description": "通过情境音频内容提高听力技能"

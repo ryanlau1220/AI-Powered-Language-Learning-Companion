@@ -56,23 +56,23 @@ class ReadingService {
       console.log('Content type:', contentType);
       console.log('Content length:', content ? content.length : 0);
       
-      // Use UI language as primary indicator, with fallback to language detection
+      // Use UI language as primary indicator - respect user's choice
       let targetLanguage = uiLanguage || 'en';
       
-      // Only use language detection if UI language is not provided
+      // Only override if UI language is not explicitly set and content contains Chinese characters
       if (!uiLanguage) {
-        const languageDetection = await languageDetectionService.detectLanguage(content, userId);
-        targetLanguage = languageDetection.detectedLanguage;
-        console.log(`UI language not set, detected language: ${targetLanguage}`);
+        const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
+        if (chinesePattern.test(content)) {
+          targetLanguage = 'zh';
+          console.log(`UI language not set, content contains Chinese characters, using Chinese`);
+        } else {
+          // Fallback to language detection if no Chinese characters
+          const languageDetection = await languageDetectionService.detectLanguage(content, userId);
+          targetLanguage = languageDetection.detectedLanguage;
+          console.log(`UI language not set, detected language: ${targetLanguage}`);
+        }
       } else {
         console.log(`Using UI language: ${targetLanguage}`);
-      }
-      
-      // Simple heuristic: if content contains Chinese characters, use Chinese
-      const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
-      if (chinesePattern.test(content)) {
-        targetLanguage = 'zh';
-        console.log(`Content contains Chinese characters, using Chinese`);
       }
       
       const detectedLanguage = targetLanguage;

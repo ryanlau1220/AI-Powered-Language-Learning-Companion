@@ -184,7 +184,7 @@ router.post('/content', async (req, res) => {
     console.log('Reading content generation request received');
     console.log('Request body:', req.body);
     
-    const { topic, level, language, userId } = req.body;
+    const { topic, level, language, userId, uiLanguage } = req.body;
     
     if (!topic) {
       return res.status(400).json({
@@ -208,7 +208,8 @@ router.post('/content', async (req, res) => {
                 
                 Make it suitable for language learning with appropriate difficulty level.`,
       contentType: 'generated',
-      userId: userId || 'default'
+      userId: userId || 'default',
+      uiLanguage: uiLanguage
     });
     
     console.log('Reading content generated successfully');
