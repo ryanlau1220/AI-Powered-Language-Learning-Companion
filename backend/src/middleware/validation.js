@@ -115,8 +115,68 @@ const validateSpeechRequest = (req, res, next) => {
     audioData: Joi.string().required(),
     languageCode: Joi.string().length(5).optional(), // e.g., 'en-US'
     text: Joi.string().optional(),
-    voiceId: Joi.string().optional(),
-    languageCode: Joi.string().length(5).optional()
+    voiceId: Joi.string().optional()
+  });
+
+  const { error } = schema.validate(req.body);
+  
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation error',
+      details: error.details.map(detail => detail.message)
+    });
+  }
+
+  next();
+};
+
+const validateLanguageDetection = (req, res, next) => {
+  const schema = Joi.object({
+    text: Joi.string().min(3).max(5000).required(),
+    userId: Joi.string().optional()
+  });
+
+  const { error } = schema.validate(req.body);
+  
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation error',
+      details: error.details.map(detail => detail.message)
+    });
+  }
+
+  next();
+};
+
+const validateWritingRequest = (req, res, next) => {
+  const schema = Joi.object({
+    text: Joi.string().min(1).max(5000).required(),
+    language: Joi.string().length(2).optional(),
+    userId: Joi.string().optional(),
+    context: Joi.string().optional()
+  });
+
+  const { error } = schema.validate(req.body);
+  
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation error',
+      details: error.details.map(detail => detail.message)
+    });
+  }
+
+  next();
+};
+
+const validateReadingRequest = (req, res, next) => {
+  const schema = Joi.object({
+    level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
+    topic: Joi.string().optional(),
+    language: Joi.string().length(2).optional(),
+    userId: Joi.string().optional()
   });
 
   const { error } = schema.validate(req.body);
@@ -137,5 +197,8 @@ module.exports = {
   validateUserUpdate,
   validateConversationRequest,
   validateMessageRequest,
-  validateSpeechRequest
+  validateSpeechRequest,
+  validateLanguageDetection,
+  validateWritingRequest,
+  validateReadingRequest
 };

@@ -7,6 +7,7 @@ const conversationRoutes = require('./handlers/conversation');
 const speechRoutes = require('./handlers/speech');
 const writingRoutes = require('./handlers/writing');
 const readingRoutes = require('./handlers/reading');
+const languageRoutes = require('./handlers/language');
 const { errorHandler } = require('./middleware/errorHandler');
 const { requestLogger } = require('./middleware/requestLogger');
 
@@ -29,10 +30,11 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
-app.use('/conversation', conversationRoutes);
-app.use('/speech', speechRoutes);
-app.use('/writing', writingRoutes);
-app.use('/reading', readingRoutes);
+app.use('/api/conversation', conversationRoutes);
+app.use('/api/speech', speechRoutes);
+app.use('/api/writing', writingRoutes);
+app.use('/api/reading', readingRoutes);
+app.use('/api/language', languageRoutes);
 
 // Error handling
 app.use(errorHandler);

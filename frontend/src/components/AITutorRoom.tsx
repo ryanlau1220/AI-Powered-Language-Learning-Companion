@@ -4,21 +4,19 @@ import {
   Mic, 
   MicOff, 
   Volume2, 
-  VolumeX, 
   BookOpen, 
   PenTool, 
   Headphones, 
   MessageCircle,
-  Play,
   Pause,
   RotateCcw,
   CheckCircle,
   Loader2,
   Sparkles,
-  Target,
   TrendingUp
 } from 'lucide-react'
 import { apiService } from '../services/api'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface AITutorRoomProps {
   onBack: () => void
@@ -58,6 +56,10 @@ interface PronunciationFeedback {
   paceScore: number
   clarityScore: number
   improvements: string[]
+  overall?: number
+  fluency?: number
+  clarity?: number
+  strengths: string[]
 }
 
 interface ReadingPassage {
@@ -108,17 +110,18 @@ interface WritingFeedback {
 }
 
 const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
+  const { translate } = useLanguage()
   const [isRecording, setIsRecording] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [currentMode, setCurrentMode] = useState<'speaking' | 'reading' | 'writing' | 'listening' | null>(null)
+  const [currentMode, setCurrentMode] = useState<'speaking' | 'reading' | 'writing' | 'listening' | 'flashcards' | 'quiz' | 'qa' | null>(null)
   const [learningCards, setLearningCards] = useState<LearningCard[]>([])
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null)
   const [conversationHistory, setConversationHistory] = useState<Array<{type: 'user' | 'ai', content: string, timestamp: Date}>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [pronunciationFeedback, setPronunciationFeedback] = useState<PronunciationFeedback | null>(null)
   const [currentSpeakingPrompt, setCurrentSpeakingPrompt] = useState<string>('')
-  const [speakingChallenges, setSpeakingChallenges] = useState<Array<{id: string, title: string, prompt: string, difficulty: 'easy' | 'medium' | 'hard', category: string}>>([
+  const [speakingChallenges] = useState<Array<{id: string, title: string, prompt: string, difficulty: 'easy' | 'medium' | 'hard', category: string}>>([
     { id: '1', title: 'Self Introduction', prompt: 'Hello! Please introduce yourself and tell me about your hobbies.', difficulty: 'easy', category: 'Personal' },
     { id: '2', title: 'Daily Routine', prompt: 'Describe your typical day from morning to evening.', difficulty: 'easy', category: 'Daily Life' },
     { id: '3', title: 'Travel Story', prompt: 'Tell me about your most memorable travel experience.', difficulty: 'medium', category: 'Travel' },
@@ -126,6 +129,28 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     { id: '5', title: 'Environmental Issues', prompt: 'Discuss the most important environmental challenge facing our world today.', difficulty: 'hard', category: 'Society' },
     { id: '6', title: 'Technology Impact', prompt: 'How has technology changed the way we communicate and work?', difficulty: 'hard', category: 'Technology' }
   ])
+
+  // Function to get translated speaking challenges
+  const getTranslatedSpeakingChallenges = () => {
+    return speakingChallenges.map(challenge => ({
+      ...challenge,
+      title: translate(`aiTutorRoom.speakingChallenges.${challenge.id === '1' ? 'selfIntroduction' : 
+                                                          challenge.id === '2' ? 'dailyRoutine' :
+                                                          challenge.id === '3' ? 'travelStory' :
+                                                          challenge.id === '4' ? 'futureGoals' :
+                                                          challenge.id === '5' ? 'environmentalIssues' :
+                                                          'technologyImpact'}`, challenge.title),
+      prompt: translate(`aiTutorRoom.speakingChallenges.${challenge.id === '1' ? 'selfIntroductionPrompt' : 
+                                                           challenge.id === '2' ? 'dailyRoutinePrompt' :
+                                                           challenge.id === '3' ? 'travelStoryPrompt' :
+                                                           challenge.id === '4' ? 'futureGoalsPrompt' :
+                                                           challenge.id === '5' ? 'environmentalIssuesPrompt' :
+                                                           'technologyImpactPrompt'}`, challenge.prompt),
+      difficulty: translate(`aiTutorRoom.difficultyLabels.${challenge.difficulty}`, challenge.difficulty),
+      category: translate(`aiTutorRoom.categories.${challenge.category.toLowerCase().replace(' ', '')}`, challenge.category)
+    }))
+  }
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const [currentChallenge, setCurrentChallenge] = useState<any>(null)
   const [speakingStats, setSpeakingStats] = useState({
     totalRecordings: 0,
@@ -135,7 +160,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   })
   const [achievements, setAchievements] = useState<string[]>([])
   const [currentReadingPassage, setCurrentReadingPassage] = useState<ReadingPassage | null>(null)
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [, setUploadedFile] = useState<File | null>(null)
   const [contentAnalysis, setContentAnalysis] = useState<any>(null)
   const [flashcards, setFlashcards] = useState<any[]>([])
   const [quiz, setQuiz] = useState<any[]>([])
@@ -154,7 +179,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   const [currentWritingExercise, setCurrentWritingExercise] = useState<WritingExercise | null>(null)
   const [writingText, setWritingText] = useState<string>('')
   const [writingFeedback, setWritingFeedback] = useState<WritingFeedback | null>(null)
-  const [showWritingEditor, setShowWritingEditor] = useState(false)
+  const [, setShowWritingEditor] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -162,9 +187,30 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
   // Initialize with welcome message and default cards
   useEffect(() => {
+    const initializeConversation = async () => {
+      try {
+        // Start a new conversation
+        const response = await apiService.startConversation({
+          scenario: 'general',
+          language: 'en',
+          proficiencyLevel: 'intermediate'
+        })
+        
+        if (response.data.success) {
+          setConversationId(response.data.data.conversationId)
+          console.log('✅ Conversation started:', response.data.data.conversationId)
+        }
+      } catch (error) {
+        console.error('❌ Failed to start conversation:', error)
+        // Continue without conversation ID - will use fallback
+      }
+    }
+
+    initializeConversation()
+
     const welcomeMessage = {
       type: 'ai' as const,
-      content: "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking, reading, writing, and listening. What would you like to work on today?",
+      content: translate('aiTutorRoom.aiMessages.welcomeMessage', "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking, reading, writing, and listening. What would you like to work on today?"),
       timestamp: new Date()
     }
     setConversationHistory([welcomeMessage])
@@ -292,7 +338,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
         // For reading practice, set the transcription as the reading prompt
         setReadingPrompt(transcribedText)
         // Auto-analyze the content
-        await generateReadingFromPrompt(transcribedText)
+        await generateReadingFromPrompt()
       } else {
         // For other modes, add user message to conversation
         const userMessage = {
@@ -322,9 +368,17 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   const processTextInput = async (text: string) => {
     setIsLoading(true)
     try {
+      // Ensure we have a conversation ID
+      if (!conversationId) {
+        console.error('❌ No conversation ID available')
+        alert('Error: No active conversation. Please refresh the page and try again.')
+        setIsLoading(false)
+        return
+      }
+
       // Send to conversation API with proper message format
       const response = await apiService.sendMessage({
-        conversationId: 'default', // Using default for now
+        conversationId: conversationId,
         message: text
       })
       
@@ -398,7 +452,8 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
         fluencyScore: 7,
         paceScore: 7,
         clarityScore: 7,
-        improvements: ['Keep practicing! Your pronunciation is improving.']
+        improvements: ['Keep practicing! Your pronunciation is improving.'],
+        strengths: ['Good pace and clarity!']
       })
     } finally {
       setIsAnalyzing(false)
@@ -632,7 +687,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   }
 
   const checkAchievements = (stats: any) => {
-    const newAchievements = []
+    const newAchievements: string[] = []
     
     if (stats.totalRecordings === 1 && !achievements.includes('first-recording')) {
       newAchievements.push('first-recording')
@@ -683,7 +738,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     // Add AI message about the challenge
     const challengeMessage = {
       type: 'ai' as const,
-      content: `Great! Let's work on your speaking skills. Here's your challenge:\n\n**${challenge.title}**\n\n${challenge.prompt}\n\nTake your time and speak clearly. I'll provide feedback on your pronunciation and fluency.`,
+      content: `${translate('aiTutorRoom.aiMessages.speakingChallengeIntro', "Great! Let's work on your speaking skills. Here's your challenge:")}\n\n**${challenge.title}**\n\n${challenge.prompt}\n\n${translate('aiTutorRoom.aiMessages.speakingChallengeInstructions', "Take your time and speak clearly. I'll provide feedback on your pronunciation and fluency.")}`,
       timestamp: new Date()
     }
     setConversationHistory(prev => [...prev, challengeMessage])
@@ -702,7 +757,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
       const promptMessage = {
         type: 'ai' as const,
-        content: `🎤 **Speaking Practice Ready!**\n\nI've prepared a speaking exercise for you:\n\n**"${speakingPrompt}"**\n\n**Instructions:**\n1. Click "Start Recording" when you're ready\n2. Speak clearly and naturally\n3. Click "Stop Recording" when finished\n4. I'll provide pronunciation feedback\n\nTake your time and speak with confidence!`,
+        content: `🎤 **${translate('aiTutorRoom.speakingPracticeReady', 'Speaking Practice Ready!')}**\n\nI've prepared a speaking exercise for you:\n\n**"${speakingPrompt}"**\n\n**${translate('aiTutorRoom.speakingInstructions', 'Instructions:')}**\n1. ${translate('aiTutorRoom.speakingInstruction1', 'Click "Start Recording" when you\'re ready')}\n2. ${translate('aiTutorRoom.speakingInstruction2', 'Speak clearly and naturally')}\n3. ${translate('aiTutorRoom.speakingInstruction3', 'Click "Stop Recording" when finished')}\n4. ${translate('aiTutorRoom.speakingInstruction4', 'I\'ll provide pronunciation feedback')}\n\n${translate('aiTutorRoom.speakingConfidence', 'Take your time and speak with confidence!')}`,
         timestamp: new Date()
       }
       setConversationHistory(prev => [...prev, promptMessage])
@@ -757,36 +812,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     }
   }
 
-  const generateFlashcards = async () => {
-    if (!contentAnalysis) return
-
-    setIsLoading(true)
-    try {
-      const response = await apiService.generateFlashcards({
-        content: contentAnalysis.analysis,
-        analysis: contentAnalysis.analysis,
-        userId: 'default'
-      })
-
-      const flashcards = response.data.data.flashcards
-      setFlashcards(flashcards)
-      setCurrentFlashcardIndex(0)
-      setShowFlashcardAnswer(false)
-
-      const flashcardMessage = {
-        type: 'ai' as const,
-        content: `🃏 **Flashcards Generated!**\n\nI've created ${flashcards.length} flashcards to help you study. Click through them to test your knowledge!\n\n**Tip:** Try to answer each question before flipping the card to see the answer.`,
-        timestamp: new Date()
-      }
-      setConversationHistory(prev => [...prev, flashcardMessage])
-
-    } catch (error) {
-      console.error('Error generating flashcards:', error)
-      alert('Error generating flashcards. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const generateQuiz = async () => {
     if (!contentAnalysis) return
@@ -808,7 +833,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
       const quizMessage = {
         type: 'ai' as const,
-        content: `🧠 **New Quiz Generated!**\n\nI've created a fresh quiz with ${questions.length} questions to test your understanding. Take your time and answer each question carefully!\n\n**Good luck!** 🍀`,
+        content: `🧠 **${translate('aiTutorRoom.quizGenerated', 'New Quiz Generated!')}**\n\nI've created a fresh quiz with ${questions.length} questions to test your understanding. Take your time and answer each question carefully!\n\n**${translate('aiTutorRoom.quizGoodLuck', 'Good luck!')}** 🍀`,
         timestamp: new Date()
       }
       setConversationHistory(prev => [...prev, quizMessage])
@@ -833,7 +858,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
       if (question.type === 'multiple_choice') {
         // For multiple choice, compare with option index
-        const correctIndex = question.options?.findIndex(option => option === correctAnswer)
+        const correctIndex = question.options?.findIndex((option: string) => option === correctAnswer)
         const userIndex = parseInt(userAnswer || '-1')
         isCorrect = userIndex === correctIndex
         userAnswerText = question.options?.[userIndex] || 'Not answered'
@@ -933,7 +958,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
       const promptMessage = {
         type: 'ai' as const,
-        content: `📝 **Content Generated!**\n\nI've analyzed your prompt: **"${readingPrompt}"**\n\nHere's what I found:\n\n${analysis.analysis}\n\nYou can now:\n- 📚 **Read the summary** I've created\n- 🃏 **Study with flashcards** I'll generate\n- 🧠 **Take a quiz** to test your understanding\n- ❓ **Ask questions** about the content\n\nWhat would you like to do first?`,
+        content: `📝 **${translate('aiTutorRoom.contentGenerated', 'Content Generated!')}**\n\nI've analyzed your prompt: **"${readingPrompt}"**\n\nHere's what I found:\n\n${analysis.analysis}\n\n${translate('aiTutorRoom.contentOptions', 'You can now:')}\n- 📚 **${translate('aiTutorRoom.contentOption1', 'Read the summary')}** I've created\n- 🃏 **${translate('aiTutorRoom.contentOption2', 'Study with flashcards')}** I'll generate\n- 🧠 **${translate('aiTutorRoom.contentOption3', 'Take a quiz')}** to test your understanding\n- ❓ **${translate('aiTutorRoom.contentOption4', 'Ask questions')}** about the content\n\n${translate('aiTutorRoom.whatWouldYouLike', 'What would you like to do first?')}`,
         timestamp: new Date()
       }
       setConversationHistory(prev => [...prev, promptMessage])
@@ -975,7 +1000,26 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   }
 
   const handleCardClick = (card: LearningCard) => {
-    if (card.type === 'reading') {
+    if (card.type === 'speaking') {
+      setCurrentMode('speaking')
+      updateActiveCard('speaking')
+      
+      // Start with the default speaking challenge if available
+      if (card.speakingPrompt) {
+        const challenge = {
+          id: card.id,
+          title: card.title,
+          prompt: card.speakingPrompt,
+          difficulty: card.difficulty || 'beginner',
+          category: 'Speaking Practice'
+        }
+        startSpeakingChallenge(challenge)
+      } else {
+        // Fallback to generic speaking practice
+        const prompt = `I want to practice ${card.type}. ${card.description}`
+        processTextInput(prompt)
+      }
+    } else if (card.type === 'reading') {
       setCurrentMode('reading')
       updateActiveCard('reading')
       generateReadingPassage()
@@ -1041,7 +1085,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">AI Tutor</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{translate('aiTutor.tutorName', 'AI Tutor')}</h3>
                   <div className="bg-gray-50 rounded-lg p-4">
                     {conversationHistory.length > 0 && (
                       <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
@@ -1083,7 +1127,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {/* Flashcards and Quiz Actions - Always show when content analysis exists */}
               {contentAnalysis && (flashcards.length > 0 || quiz.length > 0) && (
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-800 mb-3">Interactive Learning Tools:</h4>
+                  <h4 className="text-sm font-semibold text-gray-800 mb-3">{translate('aiTutor.interactiveTools', 'Interactive Learning Tools:')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {flashcards.length > 0 && (
                       <button
@@ -1095,7 +1139,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         }`}
                       >
                         <span className="mr-1">🃏</span>
-                        Study Flashcards ({flashcards.length})
+{translate('aiTutor.studyFlashcards', 'Study Flashcards')} ({flashcards.length})
                       </button>
                     )}
                     
@@ -1109,7 +1153,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         }`}
                       >
                         <span className="mr-1">🧠</span>
-                        Take Quiz ({quiz.length} questions)
+{translate('aiTutor.takeQuiz', 'Take Quiz')} ({quiz.length} {translate('aiTutor.questions', 'questions')})
                       </button>
                     )}
                     
@@ -1122,7 +1166,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                       }`}
                     >
                       <span className="mr-1">❓</span>
-                      Ask Questions
+{translate('aiTutor.askQuestions', 'Ask Questions')}
                     </button>
                     
                     <button
@@ -1134,7 +1178,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                       }`}
                     >
                       <span className="mr-1">📖</span>
-                      Back to Content
+{translate('aiTutor.backToContent', 'Back to Content')}
                     </button>
                   </div>
                 </div>
@@ -1144,7 +1188,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {currentMode === 'flashcards' && flashcards.length > 0 && (
                 <div className="mt-6 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-purple-800">Flashcards Practice</h3>
+                    <h3 className="text-lg font-semibold text-purple-800">{translate('aiTutor.flashcardsPractice', 'Flashcards Practice')}</h3>
                     <div className="text-sm text-purple-600">
                       {currentFlashcardIndex + 1} of {flashcards.length}
                     </div>
@@ -1153,16 +1197,16 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   <div className="bg-white rounded-lg p-6 shadow-sm">
                     <div className="text-center mb-6">
                       <h4 className="text-xl font-bold text-gray-800 mb-2">
-                        {flashcards[currentFlashcardIndex]?.front || 'Question'}
+{flashcards[currentFlashcardIndex]?.front || translate('aiTutor.question', 'Question')}
                       </h4>
                     </div>
                     
                     {showFlashcardAnswer && (
                       <div className="text-center mb-6">
                         <div className="bg-gray-50 rounded-lg p-4">
-                          <h5 className="text-lg font-semibold text-gray-700 mb-2">Answer:</h5>
+<h5 className="text-lg font-semibold text-gray-700 mb-2">{translate('aiTutor.answer', 'Answer:')}</h5>
                           <p className="text-gray-600">
-                            {flashcards[currentFlashcardIndex]?.back || 'Answer not available'}
+{flashcards[currentFlashcardIndex]?.back || translate('aiTutor.answerNotAvailable', 'Answer not available')}
                           </p>
                         </div>
                       </div>
@@ -1173,7 +1217,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         onClick={() => setShowFlashcardAnswer(!showFlashcardAnswer)}
                         className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                       >
-                        {showFlashcardAnswer ? 'Hide Answer' : 'Show Answer'}
+{showFlashcardAnswer ? translate('aiTutor.hideAnswer', 'Hide Answer') : translate('aiTutor.showAnswer', 'Show Answer')}
                       </button>
                       
                       <button
@@ -1183,7 +1227,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         }}
                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                       >
-                        Next Card
+{translate('aiTutor.nextCard', 'Next Card')}
                       </button>
                     </div>
                   </div>
@@ -1194,7 +1238,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {currentMode === 'quiz' && quiz.length > 0 && !showQuizResults && (
                 <div className="mt-6 p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-indigo-800">Quiz Practice</h3>
+<h3 className="text-lg font-semibold text-indigo-800">{translate('aiTutor.quizPractice', 'Quiz Practice')}</h3>
                     <div className="text-sm text-indigo-600">
                       {Object.keys(quizAnswers).length} of {quiz.length} answered
                     </div>
@@ -1232,7 +1276,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                               </label>
                             </div>
                           ) : (
-                            question.options && question.options.map((option, optionIndex) => (
+                            question.options && question.options.map((option: string, optionIndex: number) => (
                               <label key={optionIndex} className="flex items-center space-x-2 cursor-pointer">
                                 <input
                                   type="radio"
@@ -1429,24 +1473,24 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                     <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center mr-2">
                       <Sparkles className="w-3 h-3 text-white" />
                     </div>
-                    Your Speaking Progress
+                    {translate('aiTutorRoom.speakingProgress.title', 'Your Speaking Progress')}
                   </h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-indigo-600">{speakingStats.totalRecordings}</div>
-                      <div className="text-sm text-indigo-700">Recordings</div>
+                      <div className="text-sm text-indigo-700">{translate('aiTutorRoom.speakingProgress.recordings', 'Recordings')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">{speakingStats.averageScore}/10</div>
-                      <div className="text-sm text-green-700">Average</div>
+                      <div className="text-sm text-green-700">{translate('aiTutorRoom.speakingProgress.average', 'Average')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-600">{speakingStats.bestScore}/10</div>
-                      <div className="text-sm text-purple-700">Best Score</div>
+                      <div className="text-sm text-purple-700">{translate('aiTutorRoom.speakingProgress.bestScore', 'Best Score')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-orange-600">{speakingStats.challengesCompleted}</div>
-                      <div className="text-sm text-orange-700">Completed</div>
+                      <div className="text-sm text-orange-700">{translate('aiTutorRoom.speakingProgress.completed', 'Completed')}</div>
                     </div>
                   </div>
                 </div>
@@ -1456,12 +1500,12 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {currentMode === 'speaking' && (
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-gray-800">Speaking Challenges</h4>
-                    <div className="text-sm text-gray-500">Choose a topic to practice</div>
+                    <h4 className="text-lg font-semibold text-gray-800">{translate('aiTutorRoom.speakingChallenges', 'Speaking Challenges')}</h4>
+                    <div className="text-sm text-gray-500">{translate('aiTutorRoom.chooseTopic', 'Choose a topic to practice')}</div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {speakingChallenges.map((challenge) => (
+                    {getTranslatedSpeakingChallenges().map((challenge) => (
                       <button
                         key={challenge.id}
                         onClick={() => startSpeakingChallenge(challenge)}
@@ -1494,7 +1538,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center mr-2">
                           <Mic className="w-3 h-3 text-white" />
                         </div>
-                        <h4 className="font-semibold text-indigo-800">Current Challenge: {currentChallenge.title}</h4>
+                        <h4 className="font-semibold text-indigo-800">{translate('aiTutorRoom.speakingChallenges.currentChallenge', 'Current Challenge:')} {currentChallenge.title}</h4>
                       </div>
                       <p className="text-indigo-700 leading-relaxed">{currentSpeakingPrompt}</p>
                     </div>
@@ -1563,7 +1607,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                           Strengths
                         </h5>
                         <ul className="text-sm text-green-700 space-y-1">
-                          {pronunciationFeedback.strengths.map((strength, index) => (
+                          {pronunciationFeedback.strengths.map((strength: string, index: number) => (
                             <li key={index} className="flex items-center">
                               <div className="w-1 h-1 bg-green-400 rounded-full mr-2"></div>
                               {strength}
@@ -1600,8 +1644,8 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                     <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <h4 className="text-xl font-semibold text-purple-800 mb-2">Reading Practice</h4>
-                    <p className="text-purple-600 mb-6">Upload a file or provide text to start your reading practice</p>
+                    <h4 className="text-xl font-semibold text-purple-800 mb-2">{translate('aiTutorRoom.interfaceTitles.readingPractice', 'Reading Practice')}</h4>
+                    <p className="text-purple-600 mb-6">{translate('aiTutorRoom.interfaceTitles.readingInstructions', "Upload a file or provide text to start your reading practice")}</p>
                     
                     {/* File Upload */}
                     <div className="mb-4">
@@ -1615,7 +1659,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         />
                         <span className="inline-flex items-center px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 cursor-pointer transition-colors">
                           <BookOpen className="w-5 h-5 mr-2" />
-                          Upload File (PDF, DOC, TXT, PPT)
+                          {translate('aiTutorRoom.readingInterface.uploadFile', 'Upload File (PDF, DOC, TXT, PPT)')}
                         </span>
                       </label>
                     </div>
@@ -1623,14 +1667,14 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                     {/* Text Input */}
                     <div className="w-full max-w-md mx-auto">
                       <div className="text-sm text-purple-500 mb-3">
-                        Or ask me to generate content about a topic you're interested in
+                        {translate('aiTutorRoom.readingInterface.orGenerateContent', "Or ask me to generate content about a topic you're interested in")}
                       </div>
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={readingPrompt}
                           onChange={(e) => setReadingPrompt(e.target.value)}
-                          placeholder="e.g., 'Tell me about artificial intelligence' or 'Explain machine learning'"
+                          placeholder={translate('aiTutorRoom.readingInterface.placeholder', "e.g., 'Tell me about artificial intelligence'")}
                           className="flex-1 px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                           onKeyPress={(e) => e.key === 'Enter' && generateReadingFromPrompt()}
                         />
@@ -1650,7 +1694,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                           disabled={!readingPrompt.trim() || isLoading}
                           className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Analyze
+                          {translate('aiTutorRoom.readingInterface.analyze', 'Analyze')}
                         </button>
                       </div>
                     </div>
@@ -1662,23 +1706,23 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {false && currentMode === 'reading' && currentReadingPassage && (
                 <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-purple-800">{currentReadingPassage.title}</h4>
+                    <h4 className="font-semibold text-purple-800">{currentReadingPassage?.title}</h4>
                     <div className="flex items-center space-x-2">
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        currentReadingPassage.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
-                        currentReadingPassage.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                        currentReadingPassage?.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
+                        currentReadingPassage?.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {currentReadingPassage.difficulty}
+                        {currentReadingPassage?.difficulty}
                       </span>
                       <span className="text-sm text-purple-600">
-                        {currentReadingPassage.readingTime} min read
+                        {currentReadingPassage?.readingTime} min read
                       </span>
                     </div>
                   </div>
                   
                   <div className="prose max-w-none mb-4">
-                    <p className="text-gray-700 leading-relaxed">{currentReadingPassage.content}</p>
+                    <p className="text-gray-700 leading-relaxed">{currentReadingPassage?.content}</p>
                   </div>
                   
                   <div className="flex space-x-2">
@@ -1697,11 +1741,11 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   </div>
                   
                   {/* Vocabulary Section */}
-                  {showVocabulary && currentReadingPassage.vocabulary && currentReadingPassage.vocabulary.length > 0 && (
+                  {showVocabulary && currentReadingPassage?.vocabulary && (currentReadingPassage?.vocabulary?.length || 0) > 0 && (
                     <div className="mt-4 p-3 bg-white rounded border">
                       <h5 className="font-medium text-purple-800 mb-2">Key Vocabulary:</h5>
                       <div className="space-y-2">
-                        {currentReadingPassage.vocabulary.map((vocab, index) => (
+                        {currentReadingPassage?.vocabulary?.map((vocab, index) => (
                           <div key={index} className="text-sm">
                             <span className="font-medium text-purple-700">{vocab.word}</span>
                             <span className="text-gray-600"> - {vocab.definition}</span>
@@ -1713,15 +1757,15 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   )}
                   
                   {/* Comprehension Questions */}
-                  {showComprehension && currentReadingPassage.comprehensionQuestions && currentReadingPassage.comprehensionQuestions.length > 0 && (
+                  {showComprehension && currentReadingPassage?.comprehensionQuestions && (currentReadingPassage?.comprehensionQuestions?.length || 0) > 0 && (
                     <div className="mt-4 p-3 bg-white rounded border">
                       <h5 className="font-medium text-purple-800 mb-3">Comprehension Questions:</h5>
                       <div className="space-y-3">
-                        {currentReadingPassage.comprehensionQuestions.map((question, qIndex) => (
+                        {currentReadingPassage?.comprehensionQuestions?.map((question, qIndex) => (
                           <div key={qIndex} className="text-sm">
                             <p className="font-medium text-gray-800 mb-2">{qIndex + 1}. {question.question}</p>
                             <div className="space-y-1">
-                              {question.options.map((option, oIndex) => (
+                              {question.options.map((option: string, oIndex: number) => (
                                 <label key={oIndex} className="flex items-center space-x-2 cursor-pointer">
                                   <input
                                     type="radio"
@@ -1750,9 +1794,9 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   {readingScore !== null && (
                     <div className="mt-4 p-3 bg-green-50 rounded border border-green-200">
                       <h5 className="font-medium text-green-800 mb-1">Your Score:</h5>
-                      <div className="text-2xl font-bold text-green-600">{readingScore}%</div>
+                      <div className="text-2xl font-bold text-green-600">{readingScore || 0}%</div>
                       <p className="text-sm text-green-700">
-                        {readingScore >= 80 ? 'Excellent!' : readingScore >= 60 ? 'Good job!' : 'Keep practicing!'}
+                        {(readingScore || 0) >= 80 ? 'Excellent!' : (readingScore || 0) >= 60 ? 'Good job!' : 'Keep practicing!'}
                       </p>
                     </div>
                   )}
@@ -1902,7 +1946,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {/* Speaking Prompt Input - Only show in speaking mode */}
               {currentMode === 'speaking' && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
-                  <h4 className="text-lg font-semibold text-indigo-800 mb-3">Custom Speaking Practice</h4>
+                  <h4 className="text-lg font-semibold text-indigo-800 mb-3">{translate('aiTutorRoom.customSpeakingPractice', 'Custom Speaking Practice')}</h4>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -1917,7 +1961,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                       disabled={!speakingPrompt.trim() || isLoading}
                       className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Generate
+                      {translate('aiTutorRoom.generate', 'Generate')}
                     </button>
                   </div>
                 </div>
@@ -1933,7 +1977,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   }`}
                 >
                   {isRecording ? <MicOff className="w-5 h-5 mr-2" /> : <Mic className="w-5 h-5 mr-2" />}
-                  {isRecording ? 'Stop Recording' : 'Start Recording'}
+                  {isRecording ? translate('aiTutorRoom.stopRecording', 'Stop Recording') : translate('aiTutorRoom.startRecording', 'Start Recording')}
                 </button>
 
                 {aiResponse && (
@@ -1942,14 +1986,14 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                     className="flex items-center px-6 py-3 rounded-lg font-medium bg-green-500 text-white hover:bg-green-600 transition-colors"
                   >
                     {isPlaying ? <Pause className="w-5 h-5 mr-2" /> : <Volume2 className="w-5 h-5 mr-2" />}
-                    {isPlaying ? 'Pause' : 'Listen'}
+                    {isPlaying ? translate('aiTutorRoom.pause', 'Pause') : translate('aiTutorRoom.listen', 'Listen')}
                   </button>
                 )}
 
-                {isLoading && (
+                {(isLoading || isAnalyzing) && (
                   <div className="flex items-center text-gray-600">
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Processing...
+                    {isAnalyzing ? 'Analyzing pronunciation...' : translate('aiTutorRoom.processing', 'Processing...')}
                   </div>
                 )}
               </div>
@@ -1960,7 +2004,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   <div className="flex items-center mb-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
                     <Mic className="w-4 h-4 mr-2 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">Live Speech:</span>
+                    <span className="text-sm font-medium text-blue-800">{translate('aiTutorRoom.liveSpeech', 'Live Speech:')}</span>
                   </div>
                   <p className="text-gray-700 italic leading-relaxed">"{currentTranscript}"</p>
                   {isRecording && (
@@ -1968,7 +2012,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                       <div className="w-1 h-1 bg-blue-500 rounded-full animate-ping mr-1"></div>
                       <div className="w-1 h-1 bg-blue-500 rounded-full animate-ping mr-1" style={{animationDelay: '0.2s'}}></div>
                       <div className="w-1 h-1 bg-blue-500 rounded-full animate-ping mr-2" style={{animationDelay: '0.4s'}}></div>
-                      Listening...
+                      {translate('aiTutorRoom.listening', 'Listening...')}
                     </div>
                   )}
                 </div>
@@ -2019,7 +2063,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
           {/* Learning Cards Panel */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Learning Activities</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">{translate('aiTutorRoom.learningActivities', 'Learning Activities')}</h3>
             
             {learningCards.map((card) => (
               <div
@@ -2036,30 +2080,30 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-semibold text-gray-800">{card.title}</h4>
+                        <h4 className="font-semibold text-gray-800">{translate(`aiTutorRoom.learningCards.${card.type}.title`, card.title)}</h4>
                         {card.difficulty && (
                           <span className={`px-2 py-1 text-xs rounded-full ${
                             card.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
                             card.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
                             'bg-red-100 text-red-700'
                           }`}>
-                            {card.difficulty}
+                            {translate(`aiTutorRoom.difficultyLabels.${card.difficulty}`, card.difficulty)}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{card.description}</p>
+                      <p className="text-sm text-gray-600">{translate(`aiTutorRoom.learningCards.${card.type}.description`, card.description)}</p>
                       
                       {/* Speaking Prompt Preview */}
                       {card.type === 'speaking' && card.speakingPrompt && (
                         <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                          <strong>Try:</strong> {card.speakingPrompt}
+                          <strong>{translate('aiTutorRoom.learningCards.speaking.tryPrompt', 'Try:')}</strong> {card.speakingPrompt}
                         </div>
                       )}
                       
                       {/* Expected Phrases */}
                       {card.type === 'speaking' && card.expectedPhrases && Array.isArray(card.expectedPhrases) && card.expectedPhrases.length > 0 && (
                         <div className="mt-2">
-                          <div className="text-xs text-gray-500 mb-1">Key phrases:</div>
+                          <div className="text-xs text-gray-500 mb-1">{translate('aiTutorRoom.learningCards.speaking.keyPhrases', 'Key phrases:')}</div>
                           <div className="flex flex-wrap gap-1">
                             {card.expectedPhrases.map((phrase, index) => (
                               <span key={index} className="px-2 py-1 bg-gray-200 text-xs rounded">
@@ -2079,7 +2123,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                 {card.progress !== undefined && (
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                      <span>Progress</span>
+                      <span>{translate(`aiTutorRoom.learningCards.${card.type}.progress`, 'Progress')}</span>
                       <span>{card.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -2097,12 +2141,12 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
             <div className="bg-white rounded-xl shadow-lg p-4 mt-6">
               <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
                 <TrendingUp className="w-5 h-5 mr-2" />
-                Learning Progress
+                {translate('aiTutorRoom.learningProgress', 'Learning Progress')}
               </h4>
               <div className="space-y-2">
                 {learningCards.map((card) => (
                   <div key={card.id} className="flex items-center justify-between text-sm">
-                    <span className="capitalize text-gray-600">{card.type}</span>
+                    <span className="capitalize text-gray-600">{translate(`aiTutorRoom.progressLabels.${card.type}`, card.type)}</span>
                     <span className="font-medium">{card.progress || 0}%</span>
                   </div>
                 ))}

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Mic, MicOff, Send, Volume2, VolumeX, Loader2, ArrowLeft } from 'lucide-react'
+import { Mic, MicOff, Send, Volume2, VolumeX, Loader2, ArrowLeft, Globe } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 import { apiService } from '../services/api'
+import LanguageIndicator from './LanguageIndicator'
 
 interface ConversationInterfaceProps {
   conversationId?: string
@@ -15,6 +16,10 @@ interface Message {
   type: 'user' | 'ai'
   content: string
   timestamp: string
+  language?: string
+  culturalContext?: string
+  detectedLanguage?: string
+  languageConfidence?: number
   metadata?: {
     confidence?: number
     sentiment?: string
@@ -29,7 +34,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   onMessageSent,
   onBack
 }) => {
-  const { currentLanguage } = useLanguage()
+  const { currentLanguage, translate, detectAndSwitchUILanguage } = useLanguage()
   const [isRecording, setIsRecording] = useState(false)
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
@@ -37,6 +42,8 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [isAnalyzingPronunciation, setIsAnalyzingPronunciation] = useState(false)
   const [pronunciationFeedback, setPronunciationFeedback] = useState<any>(null)
+  const [detectedLanguage, setDetectedLanguage] = useState<string | null>(null)
+  const [languageDetectionResult, setLanguageDetectionResult] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -65,14 +72,25 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
     scrollToBottom()
   }, [messages])
 
+  const handleLanguageDetected = (result: any) => {
+    setDetectedLanguage(result.detectedLanguage)
+    setLanguageDetectionResult(result)
+    console.log('🔍 Language detected:', result)
+  }
+
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading) return
+
+    // Smart language detection for UI switching
+    await detectAndSwitchUILanguage(message)
 
     const userMessage: Message = {
       messageId: `user-${Date.now()}`,
       type: 'user',
       content: message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      detectedLanguage: detectedLanguage,
+      languageConfidence: languageDetectionResult?.confidence
     }
 
     // Add user message immediately
@@ -90,14 +108,22 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       })
       
       if (response.data.success) {
+        const responseData = response.data.data
         const aiMessage: Message = {
-          messageId: response.data.data.messageId || `ai-${Date.now()}`,
+          messageId: responseData.messageId || `ai-${Date.now()}`,
           type: 'ai',
-          content: response.data.data.content,
+          content: responseData.content || responseData.response,
           timestamp: new Date().toISOString(),
-          metadata: response.data.data.metadata || {}
+          language: responseData.language,
+          culturalContext: responseData.culturalContext,
+          metadata: responseData.metadata || {}
         }
         setMessages(prev => [...prev, aiMessage])
+        
+        // Show language detection info if available
+        if (responseData.languageDetection) {
+          console.log('🔄 Language switched:', responseData.languageDetection)
+        }
       } else {
         console.error('Failed to get AI response:', response.data.error)
         const errorMessage: Message = {
@@ -119,6 +145,8 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
+      setDetectedLanguage(null)
+      setLanguageDetectionResult(null)
     }
   }
 
@@ -408,6 +436,28 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
             >
               <p className="text-sm">{msg.content}</p>
               
+              {/* Language and Cultural Context Info */}
+              <div className={`mt-1 flex items-center space-x-2 text-xs ${
+                msg.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+              }`}>
+                {msg.language && (
+                  <span className="flex items-center space-x-1">
+                    <Globe className="h-3 w-3" />
+                    <span>{msg.language.toUpperCase()}</span>
+                  </span>
+                )}
+                {msg.culturalContext && (
+                  <span className="text-xs opacity-75">
+                    {msg.culturalContext}
+                  </span>
+                )}
+                {msg.detectedLanguage && msg.languageConfidence && (
+                  <span className="text-xs opacity-75">
+                    Detected: {msg.detectedLanguage} ({Math.round(msg.languageConfidence * 100)}%)
+                  </span>
+                )}
+              </div>
+              
               {/* AI message audio controls */}
               {msg.type === 'ai' && (
                 <div className="mt-2 flex items-center space-x-2">
@@ -530,6 +580,17 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
 
       {/* Input Area */}
       <div className="border-t border-gray-200 p-4">
+        {/* Language Detection Indicator */}
+        {message && (
+          <div className="mb-2">
+            <LanguageIndicator
+              text={message}
+              onLanguageDetected={handleLanguageDetected}
+              className="text-sm"
+            />
+          </div>
+        )}
+        
         <div className="flex items-center space-x-2">
           <button
             onClick={isRecording ? stopRecording : startRecording}
@@ -549,7 +610,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
+              placeholder={translate('conversation.inputPlaceholder', 'Type your message here...')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows={1}
               disabled={isLoading}

@@ -6,6 +6,7 @@ const os = require('os');
 const multer = require('multer');
 const mammoth = require('mammoth');
 const pdf = require('pdf-parse');
+const languageDetectionService = require('./languageDetectionService');
 
 // Configure AWS regions
 const malaysiaRegion = process.env.REGION || 'ap-southeast-5';
@@ -55,11 +56,34 @@ class ReadingService {
       console.log('Content type:', contentType);
       console.log('Content length:', content ? content.length : 0);
       
-      const prompt = `You are an expert educational content analyzer. Analyze the following content and provide a comprehensive breakdown for language learning purposes.
+      // Detect language of the content
+      const languageDetection = await languageDetectionService.detectLanguage(content, userId);
+      const detectedLanguage = languageDetection.detectedLanguage;
+      const culturalContext = languageDetection.culturalContext;
+      
+      console.log(`🔍 Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
+      console.log(`🏛️ Cultural context: ${culturalContext}`);
+      
+      // Build language-specific prompt
+      const isChinese = detectedLanguage === 'zh';
+      const prompt = isChinese ? 
+        `你是一个专业的语言学习内容分析师。请分析以下内容并提供全面的语言学习分析。
+
+内容：${content}
+
+请提供以下分析（全部用中文回答）：
+1. **主要主题** - 列出涵盖的关键主题
+2. **关键概念** - 重要概念和定义
+3. **词汇** - 关键词汇及其定义和难度等级
+4. **总结** - 内容清晰简洁的总结
+5. **学习目标** - 学生应该从这些内容中学到什么
+
+请用清晰的中文回答，适合语言学习者理解。使用markdown格式。` :
+        `You are an expert educational content analyzer. Analyze the following content and provide a comprehensive breakdown for language learning purposes.
 
 Content: ${content}
 
-Please provide:
+Please provide (respond in ${detectedLanguage === 'en' ? 'English' : detectedLanguage}):
 1. **Main Topics** - List the key topics covered
 2. **Key Concepts** - Important concepts and definitions
 3. **Vocabulary** - Key terms with definitions and difficulty levels
@@ -156,7 +180,32 @@ Format your response in clear sections with markdown formatting.`;
     try {
       console.log('Generating flashcards from content...');
       
-      const prompt = `Based on the following content and analysis, create 10 flashcards for effective learning.
+      // Detect language of the content
+      const languageDetection = await languageDetectionService.detectLanguage(content, userId);
+      const detectedLanguage = languageDetection.detectedLanguage;
+      const culturalContext = languageDetection.culturalContext;
+      
+      console.log(`🔍 Flashcard generation - Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
+      
+      // Build language-specific flashcard prompt
+      const isChinese = detectedLanguage === 'zh';
+      const prompt = isChinese ? 
+        `基于以下内容和分析，创建10张有效的学习卡片。
+
+内容：${content}
+分析：${analysis}
+
+请使用以下JSON格式返回，使用英文字段名但中文内容：
+[
+  {
+    "front": "问题或术语（中文）",
+    "back": "答案或定义（中文）",
+    "difficulty": "简单"
+  }
+]
+
+返回仅包含10张卡片的有效JSON数组。` :
+        `Based on the following content and analysis, create 10 flashcards for effective learning.
 
 Content: ${content}
 Analysis: ${analysis}
@@ -246,6 +295,14 @@ Format as a JSON array with the following structure:
     try {
       console.log('Generating quiz from content...');
       
+      // Detect language of the content
+      const languageDetection = await languageDetectionService.detectLanguage(content, userId);
+      const detectedLanguage = languageDetection.detectedLanguage;
+      const culturalContext = languageDetection.culturalContext;
+      
+      console.log(`🔍 Quiz generation - Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
+      console.log(`🏛️ Cultural context: ${culturalContext}`);
+      
       const timestamp = new Date().toISOString();
       const randomSeed = Math.floor(Math.random() * 1000);
       const questionSet = Math.floor(Math.random() * 4); // 0, 1, 2, or 3
@@ -271,7 +328,34 @@ Format as a JSON array with the following structure:
         focusAreas = ['future developments', 'maintenance requirements', 'safety considerations', 'environmental impact', 'economic factors'];
       }
       
-      const prompt = `You are an expert quiz creator. Create exactly 5 quiz questions based on the following content, focusing on these specific areas: ${focusAreas.join(', ')}.
+      // Build language-specific quiz prompt
+      const isChinese = detectedLanguage === 'zh';
+      const prompt = isChinese ? 
+        `你是一个专业的测验创建者。请基于以下内容创建5个测验问题，重点关注这些特定领域：${focusAreas.join('、')}。
+
+内容：${content}
+
+要求：
+- 专注于特定领域：${focusAreas.join('、')}
+- 创建测试对这些特定方面理解的问题
+- 混合选择题和判断题
+- 变化难度等级（简单、中等、困难）
+- 使问题与提供的内容具体相关
+
+请使用以下JSON格式返回，使用英文字段名但中文内容：
+[
+  {
+    "question": "关于内容的具体问题（中文）",
+    "type": "multiple_choice",
+    "options": ["选项A（中文）", "选项B（中文）", "选项C（中文）", "选项D（中文）"],
+    "correctAnswer": "正确答案（中文）",
+    "explanation": "解释（中文）",
+    "difficulty": "简单"
+  }
+]
+
+返回仅包含5个测验问题的有效JSON数组。` :
+        `You are an expert quiz creator. Create exactly 5 quiz questions based on the following content, focusing on these specific areas: ${focusAreas.join(', ')}.
 
 Content: ${content}
 

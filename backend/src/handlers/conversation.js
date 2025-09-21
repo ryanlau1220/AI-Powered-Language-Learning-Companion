@@ -5,10 +5,10 @@ const { validateConversationRequest } = require('../middleware/validation');
 const { authenticateUser } = require('../middleware/auth');
 
 // Start a new conversation
-router.post('/start', authenticateUser, async (req, res) => {
+router.post('/start', async (req, res) => {
   try {
     const { scenario, language, proficiencyLevel } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     const conversation = await conversationService.startConversation({
       userId,
@@ -31,10 +31,10 @@ router.post('/start', authenticateUser, async (req, res) => {
 });
 
 // Send message in conversation
-router.post('/message', authenticateUser, async (req, res) => {
+router.post('/message', async (req, res) => {
   try {
     const { conversationId, message, audioData } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     const response = await conversationService.processMessage({
       conversationId,

@@ -1,0 +1,314 @@
+{
+  "navigation": {
+    "home": "首页",
+    "conversation": "对话练习",
+    "reading": "阅读练习",
+    "speaking": "口语练习",
+    "writing": "写作练习",
+    "aiTutor": "AI导师室"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "save": "保存",
+    "cancel": "取消",
+    "submit": "提交",
+    "next": "下一步",
+    "previous": "上一步",
+    "back": "返回",
+    "continue": "继续",
+    "finish": "完成",
+    "retry": "重试",
+    "close": "关闭",
+    "yes": "是",
+    "no": "否",
+    "ok": "确定"
+  },
+  "homePage": {
+    "title": "AI驱动的语言学习伙伴",
+    "subtitle": "通过AI辅助掌握语言",
+    "getStarted": "开始学习",
+    "features": {
+      "conversation": {
+        "title": "对话练习",
+        "description": "与我们的AI导师进行自然对话练习"
+      },
+      "reading": {
+        "title": "阅读练习",
+        "description": "通过AI生成的内容和分析提高阅读技能"
+      },
+      "speaking": {
+        "title": "口语练习",
+        "description": "通过实时反馈完善您的发音"
+      },
+      "writing": {
+        "title": "写作练习",
+        "description": "通过AI驱动的语法和风格分析提升写作技能"
+      }
+    }
+  },
+  "conversation": {
+    "title": "对话练习",
+    "subtitle": "与您的AI语言导师聊天",
+    "inputPlaceholder": "在这里输入您的消息...",
+    "sendMessage": "发送消息",
+    "startConversation": "开始新对话",
+    "endConversation": "结束对话",
+    "conversationEnded": "对话已结束。开始新的对话继续练习。",
+    "languageDetected": "检测到的语言",
+    "culturalContext": "文化背景"
+  },
+  "reading": {
+    "title": "阅读练习",
+    "subtitle": "上传内容或生成阅读材料",
+    "uploadFile": "上传文件",
+    "generateContent": "生成内容",
+    "promptPlaceholder": "描述您想要阅读的内容...",
+    "interactiveTools": "互动学习工具：",
+    "studyFlashcards": "学习卡片",
+    "takeQuiz": "参加测验",
+    "askQuestions": "提问",
+    "backToContent": "返回内容",
+    "flashcards": {
+      "title": "卡片练习",
+      "showAnswer": "显示答案",
+      "nextCard": "下一张卡片",
+      "answer": "答案：",
+      "question": "问题"
+    },
+    "quiz": {
+      "title": "测验练习",
+      "answered": "已回答",
+      "submitQuiz": "提交测验",
+      "results": "测验结果！",
+      "score": "您的得分",
+      "correct": "正确",
+      "excellent": "优秀！您对内容有很好的理解。",
+      "good": "很好！您理解了大部分内容。",
+      "keepStudying": "继续学习！复习内容并重试。"
+    }
+  },
+  "speaking": {
+    "title": "口语练习",
+    "subtitle": "通过AI反馈练习发音",
+    "startRecording": "开始录音",
+    "stopRecording": "停止录音",
+    "recording": "录音中...",
+    "speakNow": "现在请说话...",
+    "processing": "正在处理您的语音...",
+    "feedback": "发音反馈",
+    "accuracy": "准确度",
+    "fluency": "流利度",
+    "pronunciation": "发音"
+  },
+  "listening": {
+    "title": "听力练习",
+    "subtitle": "通过情境音频内容提高听力技能",
+    "startListening": "开始听力",
+    "stopListening": "停止听力",
+    "listening": "听力中...",
+    "listenNow": "现在请听...",
+    "processing": "正在处理音频...",
+    "feedback": "听力反馈",
+    "comprehension": "理解力",
+    "accuracy": "准确度"
+  },
+  "writing": {
+    "title": "写作练习",
+    "subtitle": "通过AI辅助提升写作能力",
+    "inputPlaceholder": "在这里输入您的文本...",
+    "analyze": "分析写作",
+    "grammarCheck": "语法检查",
+    "styleSuggestion": "风格建议",
+    "wordCount": "字数统计"
+  },
+  "aiTutor": {
+    "title": "AI导师室",
+    "subtitle": "进入沉浸式学习环境，在这里口语、阅读、写作和听力无缝集成到一个智能对话体验中。",
+    "uploadFile": "上传文件",
+    "generateContent": "生成内容",
+    "selectMode": "选择学习模式",
+    "modes": {
+      "conversation": "对话",
+      "reading": "阅读",
+      "speaking": "口语",
+      "writing": "写作"
+    },
+    "tutorName": "AI导师",
+    "interactiveTools": "互动学习工具：",
+    "studyFlashcards": "学习卡片",
+    "takeQuiz": "参加测验",
+    "askQuestions": "提问",
+    "backToContent": "返回内容",
+    "flashcardsPractice": "卡片练习",
+    "quizPractice": "测验练习",
+    "question": "问题",
+    "answer": "答案：",
+    "answerNotAvailable": "答案不可用",
+    "showAnswer": "显示答案",
+    "hideAnswer": "隐藏答案",
+    "nextCard": "下一张卡片",
+    "questions": "个问题"
+  },
+  "language": {
+    "switchTo": "切换到",
+    "english": "English",
+    "chinese": "中文",
+    "detected": "检测到",
+    "confidence": "置信度",
+    "culturalContext": "文化背景",
+    "western": "西方",
+    "autoSwitch": "自动切换界面语言",
+    "manual": "手动"
+  },
+  "homePage": {
+    "title": "AI驱动的语言学习伙伴",
+    "subtitle": "通过AI辅助掌握语言",
+    "getStarted": "开始学习",
+    "integratedModes": "综合学习模式",
+    "features": {
+      "conversation": {
+        "title": "对话练习",
+        "description": "与我们的AI导师进行自然对话练习"
+      },
+      "reading": {
+        "title": "阅读练习",
+        "description": "通过AI生成的内容和分析提高阅读技能"
+      },
+      "speaking": {
+        "title": "口语练习",
+        "description": "通过实时反馈完善您的发音"
+      },
+      "writing": {
+        "title": "写作练习",
+        "description": "通过AI驱动的语法和风格分析提升写作技能"
+      },
+      "listening": {
+        "title": "听力练习",
+        "description": "通过情境音频内容提高听力技能"
+      },
+      "integratedModes": "综合学习模式"
+    }
+  },
+  "aiTutorRoom": {
+    "learningActivities": "学习活动",
+    "learningProgress": "学习进度",
+    "speakingChallenges": "口语挑战",
+    "chooseTopic": "选择一个话题来练习",
+    "customSpeakingPractice": "自定义口语练习",
+    "generate": "生成",
+    "startRecording": "开始录音",
+    "stopRecording": "停止录音",
+    "listen": "听",
+    "pause": "暂停",
+    "processing": "处理中...",
+    "liveSpeech": "实时语音:",
+    "listening": "正在听...",
+    "speakingPracticeReady": "口语练习准备就绪！",
+    "speakingInstructions": "说明:",
+    "speakingInstruction1": "准备好时点击\"开始录音\"",
+    "speakingInstruction2": "清晰自然地说话",
+    "speakingInstruction3": "完成后点击\"停止录音\"",
+    "speakingInstruction4": "我将提供发音反馈",
+    "speakingConfidence": "慢慢来，自信地说话！",
+    "flashcardsGenerated": "卡片已生成！",
+    "flashcardsTip": "在翻看答案之前先尝试回答每个问题。",
+    "quizGenerated": "新测验已生成！",
+    "quizGoodLuck": "祝你好运！",
+    "contentGenerated": "内容已生成！",
+    "contentOptions": "你现在可以:",
+    "contentOption1": "阅读我创建的摘要",
+    "contentOption2": "学习我生成的卡片",
+    "contentOption3": "参加测验来测试你的理解",
+    "contentOption4": "询问关于内容的问题",
+    "whatWouldYouLike": "你想先做什么？",
+    "learningCards": {
+      "speaking": {
+        "title": "口语练习",
+        "description": "练习发音和对话",
+        "tryPrompt": "试试：你好！请介绍一下自己并告诉我你的爱好。",
+        "keyPhrases": "关键词组：",
+        "progress": "进度"
+      },
+      "reading": {
+        "title": "阅读练习",
+        "description": "提高阅读理解能力",
+        "progress": "进度"
+      },
+      "writing": {
+        "title": "写作练习",
+        "description": "通过语法和风格反馈提升写作技能",
+        "progress": "进度"
+      },
+      "listening": {
+        "title": "听力练习",
+        "description": "培养听力技能",
+        "progress": "进度"
+      }
+    },
+    "readingInterface": {
+      "uploadFile": "上传文件 (PDF, DOC, TXT, PPT)",
+      "orGenerateContent": "或者让我为你感兴趣的主题生成内容",
+      "placeholder": "例如：'告诉我关于人工智能'",
+      "analyze": "分析"
+    },
+    "progressLabels": {
+      "speaking": "口语",
+      "reading": "阅读",
+      "writing": "写作", 
+      "listening": "听力"
+    },
+    "aiMessages": {
+      "welcomeMessage": "你好！我是你的AI语言学习导师。我在这里帮助你练习口语、阅读、写作和听力。你今天想练习什么？",
+      "speakingChallengeIntro": "太好了！让我们来练习你的口语技能。这是你的挑战：",
+      "speakingChallengeInstructions": "慢慢来，清晰地说话。我将对你的发音和流利度提供反馈。"
+    },
+    "buttonLabels": {
+      "speakingPractice": "口语练习",
+      "readingPractice": "阅读练习"
+    },
+    "interfaceTitles": {
+      "readingPractice": "阅读练习",
+      "readingInstructions": "上传文件或提供文本来开始你的阅读练习"
+    },
+    "speakingProgress": {
+      "title": "你的口语进度",
+      "recordings": "录音次数",
+      "average": "平均分",
+      "bestScore": "最高分",
+      "completed": "已完成"
+    },
+    "speakingChallenges": {
+      "currentChallenge": "当前挑战：",
+      "selfIntroduction": "自我介绍",
+      "dailyRoutine": "日常作息", 
+      "travelStory": "旅行故事",
+      "futureGoals": "未来目标",
+      "environmentalIssues": "环境问题",
+      "technologyImpact": "技术影响",
+      "selfIntroductionPrompt": "你好！请介绍一下自己并告诉我你的爱好。",
+      "dailyRoutinePrompt": "描述你从早到晚的典型一天。",
+      "travelStoryPrompt": "告诉我你最难忘的旅行经历。",
+      "futureGoalsPrompt": "你的职业目标是什么？你计划如何实现它们？",
+      "environmentalIssuesPrompt": "讨论当今世界面临的最重要的环境挑战。",
+      "technologyImpactPrompt": "技术如何改变了我们的沟通和工作方式？"
+    },
+    "difficultyLabels": {
+      "beginner": "初级",
+      "intermediate": "中级",
+      "advanced": "高级",
+      "easy": "简单",
+      "medium": "中等",
+      "hard": "困难"
+    },
+    "categories": {
+      "personal": "个人",
+      "dailyLife": "日常生活",
+      "travel": "旅行",
+      "career": "职业",
+      "society": "社会",
+      "technology": "技术"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # AI-Powered Language Learning Companion
 
-Complete AI-powered language learning platform with real-time conversation, pronunciation feedback, and adaptive learning using AWS AI services.
+Complete AI-powered language learning platform with real-time conversation, pronunciation feedback, multi-language support (English/Chinese), and adaptive learning using AWS AI services.
 
 ## Commands
 ```bash
@@ -36,16 +36,19 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ```
 
 ## User Interface
-- **Main App**: http://localhost:5173
+- **Main App**: http://localhost:3001 (Frontend)
 - **API Health**: http://localhost:3000/health
+- **Language Detection API**: http://localhost:3000/api/language/detect
+- **Translation API**: http://localhost:3000/api/language/translate
 
 ## Tech Stack
 - **Backend**: Node.js, Express.js, Serverless Framework
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS
-- **Database**: Amazon DynamoDB
-- **AI Services**: Amazon Lex, Bedrock, Transcribe, Polly
+- **Database**: In-memory storage (Map-based)
+- **AI Services**: Amazon Bedrock, Comprehend, Translate, Transcribe, Polly
 - **Cloud**: AWS Lambda, API Gateway, S3
-- **Authentication**: JWT
+- **Authentication**: Anonymous access
+- **Multi-language**: AWS Comprehend (language detection), AWS Translate (translation)
 - **Deployment**: Serverless Framework
 - **Package Manager**: npm
 
@@ -53,64 +56,102 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ```
 ├── backend/                   # Serverless backend
 │   ├── src/
-│   │   ├── handlers/         # Lambda handlers
+│   │   ├── handlers/         # API route handlers
+│   │   │   ├── conversation.js  # Conversation management
+│   │   │   ├── language.js      # Language detection & translation
+│   │   │   ├── reading.js       # Reading practice features
+│   │   │   ├── speech.js        # Speech processing
+│   │   │   └── writing.js       # Writing practice
 │   │   ├── services/         # AI service integrations
+│   │   │   ├── bedrockService.js      # Amazon Bedrock AI
+│   │   │   ├── languageDetectionService.js  # Language detection
+│   │   │   ├── translationService.js        # Translation services
+│   │   │   ├── conversationService.js       # Conversation management
+│   │   │   ├── readingService.js            # Reading content generation
+│   │   │   ├── speechService.js             # Speech processing
+│   │   │   └── userService.js               # User management
 │   │   ├── middleware/       # Express middleware
-│   │   └── models/           # Data models
+│   │   │   ├── auth.js           # Authentication
+│   │   │   ├── errorHandler.js   # Error handling
+│   │   │   ├── requestLogger.js  # Request logging
+│   │   │   └── validation.js     # Input validation
+│   │   └── index.js          # Main server file
 │   └── serverless.yml        # Serverless configuration
 ├── frontend/                  # React frontend
 │   ├── src/
 │   │   ├── components/       # React components
+│   │   │   ├── AITutorRoom.tsx        # Main learning interface
+│   │   │   ├── ConversationInterface.tsx  # Chat interface
+│   │   │   ├── LanguageIndicator.tsx      # Language detection UI
+│   │   │   ├── LanguageSwitcher.tsx       # Language selection
+│   │   │   ├── Layout.tsx                 # Main layout
+│   │   │   ├── ReadingMode.tsx            # Reading practice
+│   │   │   └── SpeakingMode.tsx           # Speaking practice
 │   │   ├── pages/            # Page components
+│   │   │   ├── HomePage.tsx           # Landing page
+│   │   │   └── ConversationPage.tsx   # Conversation practice
+│   │   ├── contexts/         # React contexts
+│   │   │   └── LanguageContext.tsx    # Language management
 │   │   ├── services/         # API services
-│   │   └── types/            # TypeScript types
+│   │   │   ├── api.ts                # API client
+│   │   │   └── translationService.ts # Frontend translation
+│   │   ├── locales/          # Translation files
+│   │   │   ├── en.json               # English translations
+│   │   │   └── zh.json               # Chinese translations
+│   │   └── index.css         # Global styles
 │   └── vite.config.ts        # Vite configuration
 ├── scripts/                   # Utility scripts
 │   ├── setup-dynamodb.js     # Database setup
 │   ├── setup-lex-bot.js      # Lex bot setup
 │   ├── deploy-to-aws.js      # Deployment script
-│   └── test-*.js             # Testing scripts
+│   └── test-audio.mp3        # Test audio file
 ├── env.example               # Environment template
-└── .env                      # Environment configuration
+└── TODO.md                   # Project roadmap and features
 ```
 
 ## Features
 
 ### Core Learning Features
-- **Real-time Conversations**: AI-powered chat with Amazon Lex
+- **AI Tutor Room**: Comprehensive learning interface with multiple practice modes
+- **Real-time Conversations**: AI-powered chat with Amazon Bedrock
 - **Speech Processing**: Voice input/output with Transcribe and Polly
-- **Pronunciation Feedback**: Detailed phoneme-level analysis
-- **Grammar Correction**: Contextual grammar analysis with Bedrock
-- **Adaptive Learning**: Personalized learning paths based on progress
-- **Role-Playing Scenarios**: Immersive practice scenarios
+- **Reading Practice**: AI-generated content with analysis, quizzes, and flashcards
+- **Speaking Practice**: Pronunciation feedback and speaking challenges
+- **Writing Practice**: Grammar correction and style analysis with Bedrock
+- **Interactive Learning**: Flashcards, quizzes, and comprehension questions
 
-### User Management
-- **User Registration**: Secure account creation with JWT
-- **Profile Management**: Customizable learning preferences
-- **Progress Tracking**: Detailed analytics and milestones
-- **Multi-language Support**: Learn multiple languages simultaneously
+### Multi-Language Support
+- **Language Detection**: Automatic language detection using AWS Comprehend
+- **UI Translation**: Dynamic UI language switching (English/Chinese)
+- **Cultural Context**: AI responses adapted to Western/Chinese cultural contexts
+- **Bilingual AI**: AI responds in the same language as user input
+- **Translation Services**: Real-time text translation using AWS Translate
+- **Language Consistency**: Maintains language context throughout conversations
 
 ### AI-Powered Features
-- **Conversational AI**: Natural language understanding and generation
-- **Speech Recognition**: Real-time audio transcription
+- **Conversational AI**: Natural language understanding and generation with Bedrock
+- **Speech Recognition**: Real-time audio transcription with confidence scoring
 - **Text-to-Speech**: Multiple voice options and languages
 - **Intelligent Feedback**: Contextual corrections and suggestions
-- **Learning Analytics**: AI-driven progress analysis
+- **Content Generation**: AI-generated reading passages, quizzes, and flashcards
+- **Pronunciation Analysis**: Detailed feedback on speaking performance
+- **Language-Aware Responses**: AI responses match user's input language
 
 ## AWS Services Used
 
 ### Core AI Services
-- **Amazon Lex**: Conversational AI for natural language interactions
-- **Amazon Bedrock**: Advanced AI models for grammar correction and content generation
+- **Amazon Bedrock**: Advanced AI models for conversations, grammar correction, and content generation
+- **Amazon Comprehend**: Language detection and sentiment analysis
+- **Amazon Translate**: Text translation between English and Chinese
 - **Amazon Transcribe**: Speech-to-text conversion with confidence scoring
 - **Amazon Polly**: Text-to-speech synthesis with multiple voices
 
 ### Infrastructure Services
 - **AWS Lambda**: Serverless compute for API endpoints
 - **Amazon API Gateway**: RESTful API management and routing
-- **Amazon DynamoDB**: NoSQL database for user data and conversations
 - **Amazon S3**: File storage for audio files and generated content
 - **AWS CloudWatch**: Monitoring and logging
+- **In-Memory Storage**: Map-based storage for conversations
 
 ### Security & Management
 - **AWS IAM**: Identity and access management
@@ -122,75 +163,85 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ### Application Flow
 ```mermaid
 flowchart TD
-    A[User Registration] --> B[Login & Authentication]
-    B --> C[Start Learning Session]
+    A[User Access] --> B[Language Detection & Selection]
+    B --> C[AI Tutor Room]
     C --> D{Choose Learning Mode}
     
-    D -->|Conversation| E[AI Chat with Lex]
-    D -->|Speech Practice| F[Audio Processing]
-    D -->|Role-Playing| G[Scenario Practice]
-    D -->|Grammar Check| H[Text Analysis]
+    D -->|Conversation| E[AI Chat with Bedrock]
+    D -->|Speaking Practice| F[Audio Recording & Analysis]
+    D -->|Reading Practice| G[Content Generation & Analysis]
+    D -->|Writing Practice| H[Grammar & Style Analysis]
     
-    E --> I[Real-time Feedback]
-    F --> J[Pronunciation Analysis]
-    G --> K[Performance Evaluation]
-    H --> L[Grammar Corrections]
+    E --> I[Language-Aware Response]
+    F --> J[Pronunciation Feedback]
+    G --> K[Quizzes & Flashcards]
+    H --> L[Writing Corrections]
     
-    I --> M[Progress Update]
+    I --> M[Progress Tracking]
     J --> M
     K --> M
     L --> M
     
-    M --> N[Adaptive Learning Path]
-    N --> O[Next Lesson Recommendation]
+    M --> N[Language Context Update]
+    N --> O[Next Practice Recommendation]
     O --> C
+    
+    subgraph "Multi-Language Features"
+        P[Language Detection] --> Q[UI Translation]
+        Q --> R[Cultural Context]
+        R --> S[Consistent Language Response]
+    end
+    
+    B --> P
+    I --> S
 ```
 
 ### AWS Services Flow
 ```mermaid
 flowchart TD
-    A[Frontend Request] --> B[API Gateway]
-    B --> C[Lambda Function]
+    A[Frontend Request] --> B[Express.js API]
+    B --> C[Route Handler]
     
     C --> D{Request Type}
-    D -->|Conversation| E[Amazon Lex]
-    D -->|Speech| F[Amazon Transcribe]
-    D -->|TTS| G[Amazon Polly]
-    D -->|AI Analysis| H[Amazon Bedrock]
-    D -->|Data| I[Amazon DynamoDB]
+    D -->|Conversation| E[Amazon Bedrock]
+    D -->|Language Detection| F[Amazon Comprehend]
+    D -->|Translation| G[Amazon Translate]
+    D -->|Speech| H[Amazon Transcribe]
+    D -->|TTS| I[Amazon Polly]
+    D -->|Data| J[In-Memory Storage]
     
-    E --> J[Response Processing]
-    F --> J
-    G --> J
-    H --> J
-    I --> J
+    E --> K[Response Processing]
+    F --> K
+    G --> K
+    H --> K
+    I --> K
+    J --> K
     
-    J --> K[Lambda Response]
-    K --> L[API Gateway]
+    K --> L[API Response]
     L --> M[Frontend Update]
     
-    %% CloudWatch Logs connections
-    B --> N[CloudWatch Logs]
-    C --> N
-    E --> N
-    F --> N
+    %% Multi-language processing
+    F --> N[Language Context Update]
     G --> N
-    H --> N
-    I --> N
-    J --> N
-    K --> N
+    N --> O[Cultural Context Adaptation]
+    O --> E
     
     subgraph "AWS AI Services"
         E
         F
         G
         H
+        I
     end
     
-    subgraph "AWS Infrastructure"
+    subgraph "Multi-Language Processing"
+        N
+        O
+    end
+    
+    subgraph "Express.js Server"
         B
         C
-        I
-        N
+        J
     end
 ```

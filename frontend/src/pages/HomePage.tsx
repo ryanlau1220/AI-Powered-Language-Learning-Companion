@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
 import { Sparkles, BookOpen, Mic, Headphones, PenTool, MessageCircle, Target, TrendingUp } from 'lucide-react'
 import AITutorRoom from '../components/AITutorRoom'
+import SpeakingMode from '../components/SpeakingMode'
+import ReadingMode from '../components/ReadingMode'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const HomePage: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'home' | 'tutor-room'>('home')
+  const [currentView, setCurrentView] = useState<'home' | 'tutor-room' | 'speaking' | 'reading' | 'writing' | 'listening'>('home')
+  const { translate } = useLanguage()
 
   const features = [
     {
       icon: Sparkles,
-      title: 'AI Tutor Room',
-      description: 'Enter the immersive AI learning environment where all skills are integrated into one seamless conversation experience.',
+      title: translate('aiTutor.title', 'AI Tutor Room'),
+      description: translate('aiTutor.subtitle', 'Enter the immersive AI learning environment where all skills are integrated into one seamless conversation experience.'),
       view: 'tutor-room' as const,
       color: 'bg-gradient-to-r from-indigo-500 to-purple-600',
       hoverColor: 'hover:from-indigo-600 hover:to-purple-700',
@@ -17,39 +21,39 @@ const HomePage: React.FC = () => {
     },
     {
       icon: Mic,
-      title: 'Speaking Practice',
-      description: 'Practice pronunciation and conversation with real-time feedback.',
-      view: 'tutor-room' as const,
+      title: translate('speaking.title', 'Speaking Practice'),
+      description: translate('speaking.subtitle', 'Practice pronunciation and conversation with real-time feedback.'),
+      view: 'speaking' as const,
       color: 'bg-orange-500',
       hoverColor: 'hover:bg-orange-600'
     },
     {
       icon: Headphones,
-      title: 'Listening Practice',
-      description: 'Improve listening skills with contextual audio content.',
-      view: 'tutor-room' as const,
+      title: translate('listening.title', 'Listening Practice'),
+      description: translate('listening.subtitle', 'Improve listening skills with contextual audio content.'),
+      view: 'listening' as const,
       color: 'bg-blue-500',
       hoverColor: 'hover:bg-blue-600'
     },
     {
       icon: BookOpen,
-      title: 'Reading Practice',
-      description: 'Enhance reading comprehension with AI-generated content.',
-      view: 'tutor-room' as const,
+      title: translate('reading.title', 'Reading Practice'),
+      description: translate('reading.subtitle', 'Enhance reading comprehension with AI-generated content.'),
+      view: 'reading' as const,
       color: 'bg-purple-500',
       hoverColor: 'hover:bg-purple-600'
     },
     {
       icon: PenTool,
-      title: 'Writing Practice',
-      description: 'Develop writing skills with grammar and style feedback.',
-      view: 'tutor-room' as const,
+      title: translate('writing.title', 'Writing Practice'),
+      description: translate('writing.subtitle', 'Develop writing skills with grammar and style feedback.'),
+      view: 'writing' as const,
       color: 'bg-green-500',
       hoverColor: 'hover:bg-green-600'
     }
   ]
 
-  const handleFeatureClick = (view: 'tutor-room') => {
+  const handleFeatureClick = (view: 'tutor-room' | 'speaking' | 'reading' | 'writing' | 'listening') => {
     setCurrentView(view)
   }
 
@@ -61,6 +65,14 @@ const HomePage: React.FC = () => {
     switch (currentView) {
       case 'tutor-room':
         return <AITutorRoom onBack={handleBackToHome} />
+      case 'speaking':
+        return <SpeakingMode onBack={handleBackToHome} />
+      case 'reading':
+        return <ReadingMode onBack={handleBackToHome} />
+      case 'writing':
+        return <AITutorRoom onBack={handleBackToHome} /> // TODO: Create WritingMode component
+      case 'listening':
+        return <AITutorRoom onBack={handleBackToHome} /> // TODO: Create ListeningMode component
       default:
         return null
     }
@@ -80,19 +92,18 @@ const HomePage: React.FC = () => {
                <Sparkles className="w-8 h-8 text-white" />
              </div>
              <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight">
-               AI Language Learning Companion
+               {translate('homePage.title', 'AI Language Learning Companion')}
              </h1>
            </div>
            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-             Experience the future of language learning with our immersive AI Tutor Room. 
-             All learning modes integrated into one seamless, intelligent conversation experience.
+             {translate('homePage.subtitle', 'Experience the future of language learning with our immersive AI Tutor Room. All learning modes integrated into one seamless, intelligent conversation experience.')}
            </p>
          </div>
 
         {/* Learning Modes Grid */}
         <div className="mb-16">
           <h3 className="text-2xl font-semibold text-gray-800 text-center mb-8">
-            Integrated Learning Modes
+            {translate('homePage.features.integratedModes', 'Integrated Learning Modes')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.slice(1).map((feature, index) => (
@@ -125,10 +136,9 @@ const HomePage: React.FC = () => {
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">AI Tutor Room</h2>
+                  <h2 className="text-3xl font-bold text-white mb-2">{translate('aiTutor.title', 'AI Tutor Room')}</h2>
                   <p className="text-white/90 text-lg max-w-2xl">
-                    Enter the immersive learning environment where speaking, reading, writing, and listening 
-                    are seamlessly integrated into one intelligent conversation experience.
+                    {translate('aiTutor.subtitle', 'Enter the immersive learning environment where speaking, reading, writing, and listening are seamlessly integrated into one intelligent conversation experience.')}
                   </p>
                 </div>
               </div>

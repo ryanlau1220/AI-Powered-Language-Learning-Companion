@@ -19,12 +19,12 @@ class BedrockService {
     this.bedrockAgent = new AWS.BedrockAgent({ region: usEastRegion });
   }
 
-  async generateInitialResponse({ scenario, language, proficiencyLevel }) {
-    console.log('🚀 generateInitialResponse called with:', { scenario, language, proficiencyLevel });
+  async generateInitialResponse({ scenario, language, proficiencyLevel, culturalContext }) {
+    console.log('🚀 generateInitialResponse called with:', { scenario, language, proficiencyLevel, culturalContext });
     console.log('🔍 BEDROCK_MODEL_ID from env:', process.env.BEDROCK_MODEL_ID);
     
     try {
-      const prompt = this.buildInitialPrompt({ scenario, language, proficiencyLevel });
+      const prompt = this.buildInitialPrompt({ scenario, language, proficiencyLevel, culturalContext });
       console.log('📝 Generated prompt:', prompt.substring(0, 100) + '...');
       
       const response = await this.invokeModel(prompt);
@@ -32,7 +32,9 @@ class BedrockService {
       return {
         text: response.text,
         confidence: response.confidence || 0.8,
-        sentiment: response.sentiment || 'neutral'
+        sentiment: response.sentiment || 'neutral',
+        language: language,
+        culturalContext: culturalContext || 'auto'
       };
     } catch (error) {
       console.error('Error generating initial response:', error);
@@ -40,7 +42,7 @@ class BedrockService {
     }
   }
 
-  async generateResponse({ conversationHistory, userMessage, lexIntent, scenario, language, proficiencyLevel }) {
+  async generateResponse({ conversationHistory, userMessage, lexIntent, scenario, language, proficiencyLevel, culturalContext }) {
     try {
       const prompt = this.buildConversationPrompt({
         conversationHistory,
@@ -48,7 +50,8 @@ class BedrockService {
         lexIntent,
         scenario,
         language,
-        proficiencyLevel
+        proficiencyLevel,
+        culturalContext
       });
       
       const response = await this.invokeModel(prompt);
@@ -57,6 +60,8 @@ class BedrockService {
         text: response.text,
         confidence: response.confidence || 0.8,
         sentiment: response.sentiment || 'neutral',
+        language: language,
+        culturalContext: culturalContext || 'auto',
         grammarSuggestions: response.grammarSuggestions || [],
         pronunciationTips: response.pronunciationTips || []
       };
@@ -172,45 +177,120 @@ class BedrockService {
     }
   }
 
-  buildInitialPrompt({ scenario, language, proficiencyLevel }) {
+  buildInitialPrompt({ scenario, language, proficiencyLevel, culturalContext }) {
     const scenarios = {
-      'restaurant': 'You are a friendly waiter at a restaurant. Help the customer order food and answer questions about the menu.',
-      'shopping': 'You are a helpful shop assistant. Help the customer find items and answer questions about products.',
-      'directions': 'You are a helpful local person. Give directions and help the customer navigate the city.',
-      'general': 'You are a friendly language learning tutor. Have a casual conversation to help practice the language.'
+      'restaurant': {
+        'en': 'You are a friendly waiter at a restaurant. Help the customer order food and answer questions about the menu.',
+        'zh': '你是一家餐厅的友好服务员。帮助顾客点餐并回答关于菜单的问题。'
+      },
+      'shopping': {
+        'en': 'You are a helpful shop assistant. Help the customer find items and answer questions about products.',
+        'zh': '你是一个乐于助人的商店店员。帮助顾客找到商品并回答关于产品的问题。'
+      },
+      'directions': {
+        'en': 'You are a helpful local person. Give directions and help the customer navigate the city.',
+        'zh': '你是一个乐于助人的当地人。给顾客指路并帮助他们导航城市。'
+      },
+      'general': {
+        'en': 'You are a friendly language learning tutor. Have a casual conversation to help practice the language.',
+        'zh': '你是一个友好的语言学习导师。进行轻松的对话来帮助练习语言。'
+      }
     };
 
     const proficiencyLevels = {
-      'beginner': 'Use simple vocabulary and short sentences. Speak slowly and clearly.',
-      'intermediate': 'Use moderate vocabulary and varied sentence structures. Include some idiomatic expressions.',
-      'advanced': 'Use complex vocabulary and sophisticated sentence structures. Include cultural references and nuances.'
+      'beginner': {
+        'en': 'Use simple vocabulary and short sentences. Speak slowly and clearly. Provide encouragement and gentle corrections.',
+        'zh': '使用简单的词汇和短句。说得慢一点、清楚一点。提供鼓励和温和的纠正。'
+      },
+      'intermediate': {
+        'en': 'Use moderate vocabulary and varied sentence structures. Include some idiomatic expressions. Provide cultural context when relevant.',
+        'zh': '使用中等词汇和多样化的句子结构。包含一些惯用表达。在相关时提供文化背景。'
+      },
+      'advanced': {
+        'en': 'Use complex vocabulary and sophisticated sentence structures. Include cultural references and nuances. Engage in deeper conversations.',
+        'zh': '使用复杂的词汇和精妙的句子结构。包含文化参考和细微差别。进行更深层次的对话。'
+      }
+    };
+
+    const culturalInstructions = {
+      'Western': 'Focus on Western cultural norms, politeness, and communication styles. Use appropriate Western social cues.',
+      'Chinese': 'Focus on Chinese cultural norms, politeness, and communication styles. Use appropriate Chinese social cues and respect for hierarchy.',
+      'auto': 'Adapt cultural context based on the detected language and user preferences.'
     };
 
     const scenarioContext = scenarios[scenario] || scenarios['general'];
     const proficiencyContext = proficiencyLevels[proficiencyLevel] || proficiencyLevels['beginner'];
+    const culturalContextInstruction = culturalInstructions[culturalContext] || culturalInstructions['auto'];
 
-    return `You are an AI language learning tutor. ${scenarioContext}
+    // Build language-specific prompt
+    const isChinese = language === 'zh' || language === 'zh-CN' || language === 'zh-TW';
+    const targetLanguage = isChinese ? 'Chinese' : 'English';
+    const scenarioText = isChinese ? scenarioContext['zh'] : scenarioContext['en'];
+    const proficiencyText = isChinese ? proficiencyContext['zh'] : proficiencyContext['en'];
 
-Language: ${language}
+    const basePrompt = isChinese ? 
+      `你是一个AI语言学习导师。${scenarioText}
+
+语言: ${targetLanguage}
+熟练程度: ${proficiencyLevel}
+指示: ${proficiencyText}
+文化背景: ${culturalContextInstruction}
+
+用友好的问候开始对话并介绍场景。保持回复在100字以内，让语言学习变得有趣。
+
+回复:` :
+      `You are an AI language learning tutor. ${scenarioText}
+
+Language: ${targetLanguage}
 Proficiency Level: ${proficiencyLevel}
-Instructions: ${proficiencyContext}
+Instructions: ${proficiencyText}
+Cultural Context: ${culturalContextInstruction}
 
 Start the conversation with a friendly greeting and introduce the scenario. Keep your response under 100 words and make it engaging for language learning.
 
 Response:`;
+
+    return basePrompt;
   }
 
-  buildConversationPrompt({ conversationHistory, userMessage, lexIntent, scenario, language, proficiencyLevel }) {
+  buildConversationPrompt({ conversationHistory, userMessage, lexIntent, scenario, language, proficiencyLevel, culturalContext }) {
     const historyText = conversationHistory
       .slice(-6) // Last 6 messages for context
       .map(msg => `${msg.type}: ${msg.content}`)
       .join('\n');
 
-    return `You are an AI language learning tutor in a ${scenario} scenario.
+    const culturalInstructions = {
+      'Western': 'Use Western communication styles, directness, and cultural references.',
+      'Chinese': 'Use Chinese communication styles, respect for hierarchy, and appropriate cultural references.',
+      'auto': 'Adapt cultural context based on the conversation flow and user preferences.'
+    };
 
-Language: ${language}
+    const culturalContextInstruction = culturalInstructions[culturalContext] || culturalInstructions['auto'];
+    const isChinese = language === 'zh' || language === 'zh-CN' || language === 'zh-TW';
+    const targetLanguage = isChinese ? 'Chinese' : 'English';
+
+    const basePrompt = isChinese ? 
+      `你是一个AI语言学习导师，在${scenario}场景中。
+
+语言: ${targetLanguage}
+熟练程度: ${proficiencyLevel}
+用户意图: ${lexIntent}
+文化背景: ${culturalContextInstruction}
+
+对话历史:
+${historyText}
+
+用户消息: ${userMessage}
+
+自然地回应用户的消息。如果需要，提供有用的纠正，但不要过于苛刻。保持对话流畅和教育性。如果有语法问题，在你的回复中巧妙地纠正它们。
+
+回复:` :
+      `You are an AI language learning tutor in a ${scenario} scenario.
+
+Language: ${targetLanguage}
 Proficiency Level: ${proficiencyLevel}
 User Intent: ${lexIntent}
+Cultural Context: ${culturalContextInstruction}
 
 Conversation History:
 ${historyText}
@@ -220,6 +300,8 @@ User Message: ${userMessage}
 Respond naturally to the user's message. Provide helpful corrections if needed, but don't be overly critical. Keep the conversation flowing and educational. If there are grammar issues, subtly correct them in your response.
 
 Response:`;
+
+    return basePrompt;
   }
 
   buildGrammarAnalysisPrompt({ text, language, proficiencyLevel, context }) {

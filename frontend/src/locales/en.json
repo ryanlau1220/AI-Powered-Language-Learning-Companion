@@ -1,0 +1,315 @@
+{
+  "navigation": {
+    "home": "Home",
+    "conversation": "Conversation",
+    "reading": "Reading Practice",
+    "speaking": "Speaking Practice",
+    "writing": "Writing Practice",
+    "aiTutor": "AI Tutor Room"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "next": "Next",
+    "previous": "Previous",
+    "back": "Back",
+    "continue": "Continue",
+    "finish": "Finish",
+    "retry": "Try Again",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK"
+  },
+  "homePage": {
+    "title": "AI-Powered Language Learning Companion",
+    "subtitle": "Master languages with AI assistance",
+    "getStarted": "Get Started",
+    "features": {
+      "conversation": {
+        "title": "Conversation Practice",
+        "description": "Practice speaking with our AI tutor in natural conversations"
+      },
+      "reading": {
+        "title": "Reading Practice", 
+        "description": "Improve your reading skills with AI-generated content and analysis"
+      },
+      "speaking": {
+        "title": "Speaking Practice",
+        "description": "Perfect your pronunciation with real-time feedback"
+      },
+      "writing": {
+        "title": "Writing Practice",
+        "description": "Enhance your writing skills with AI-powered grammar and style analysis"
+      }
+    }
+  },
+  "conversation": {
+    "title": "Conversation Practice",
+    "subtitle": "Chat with your AI language tutor",
+    "inputPlaceholder": "Type your message here...",
+    "sendMessage": "Send Message",
+    "startConversation": "Start New Conversation",
+    "endConversation": "End Conversation",
+    "conversationEnded": "Conversation ended. Start a new one to continue practicing.",
+    "languageDetected": "Language detected",
+    "culturalContext": "Cultural context"
+  },
+  "reading": {
+    "title": "Reading Practice",
+    "subtitle": "Upload content or generate reading materials",
+    "uploadFile": "Upload File",
+    "generateContent": "Generate Content",
+    "promptPlaceholder": "Describe what you'd like to read about...",
+    "interactiveTools": "Interactive Learning Tools:",
+    "studyFlashcards": "Study Flashcards",
+    "takeQuiz": "Take Quiz",
+    "askQuestions": "Ask Questions",
+    "backToContent": "Back to Content",
+    "flashcards": {
+      "title": "Flashcards Practice",
+      "showAnswer": "Show Answer",
+      "nextCard": "Next Card",
+      "answer": "Answer:",
+      "question": "Question"
+    },
+    "quiz": {
+      "title": "Quiz Practice",
+      "answered": "answered",
+      "submitQuiz": "Submit Quiz",
+      "results": "Quiz Results!",
+      "score": "Your Score",
+      "correct": "correct",
+      "excellent": "Excellent work! You have a great understanding of the content.",
+      "good": "Good job! You understand most of the content.",
+      "keepStudying": "Keep studying! Review the content and try again."
+    }
+  },
+  "speaking": {
+    "title": "Speaking Practice",
+    "subtitle": "Practice pronunciation with AI feedback",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "recording": "Recording...",
+    "speakNow": "Speak now...",
+    "processing": "Processing your speech...",
+    "feedback": "Pronunciation Feedback",
+    "accuracy": "Accuracy",
+    "fluency": "Fluency",
+    "pronunciation": "Pronunciation"
+  },
+  "listening": {
+    "title": "Listening Practice",
+    "subtitle": "Improve listening skills with contextual audio content",
+    "startListening": "Start Listening",
+    "stopListening": "Stop Listening",
+    "listening": "Listening...",
+    "listenNow": "Listen now...",
+    "processing": "Processing audio...",
+    "feedback": "Listening Feedback",
+    "comprehension": "Comprehension",
+    "accuracy": "Accuracy"
+  },
+  "writing": {
+    "title": "Writing Practice",
+    "subtitle": "Improve your writing with AI assistance",
+    "inputPlaceholder": "Write your text here...",
+    "analyze": "Analyze Writing",
+    "grammarCheck": "Grammar Check",
+    "styleSuggestion": "Style Suggestions",
+    "wordCount": "Word Count"
+  },
+  "aiTutor": {
+    "title": "AI Tutor Room",
+    "subtitle": "Enter the immersive learning environment where speaking, reading, writing, and listening are seamlessly integrated into one intelligent conversation experience.",
+    "uploadFile": "Upload File",
+    "generateContent": "Generate Content",
+    "selectMode": "Select Learning Mode",
+    "modes": {
+      "conversation": "Conversation",
+      "reading": "Reading",
+      "speaking": "Speaking",
+      "writing": "Writing"
+    },
+    "tutorName": "AI Tutor",
+    "interactiveTools": "Interactive Learning Tools:",
+    "studyFlashcards": "Study Flashcards",
+    "takeQuiz": "Take Quiz",
+    "askQuestions": "Ask Questions",
+    "backToContent": "Back to Content",
+    "flashcardsPractice": "Flashcards Practice",
+    "quizPractice": "Quiz Practice",
+    "question": "Question",
+    "answer": "Answer:",
+    "answerNotAvailable": "Answer not available",
+    "showAnswer": "Show Answer",
+    "hideAnswer": "Hide Answer",
+    "nextCard": "Next Card",
+    "questions": "questions"
+  },
+  "language": {
+    "switchTo": "Switch to",
+    "english": "English",
+    "chinese": "中文",
+    "detected": "Detected",
+    "confidence": "Confidence",
+    "culturalContext": "Cultural Context",
+    "western": "Western",
+    "chinese": "Chinese",
+    "autoSwitch": "Auto-switch UI",
+    "manual": "Manual"
+  },
+  "homePage": {
+    "title": "AI Powered Language Learning Companion",
+    "subtitle": "Master languages with AI assistance",
+    "getStarted": "Get Started",
+    "integratedModes": "Integrated Learning Modes",
+    "features": {
+      "conversation": {
+        "title": "Conversation Practice",
+        "description": "Practice natural conversations with our AI tutor"
+      },
+      "reading": {
+        "title": "Reading Practice",
+        "description": "Improve reading skills with AI-generated content and analysis"
+      },
+      "speaking": {
+        "title": "Speaking Practice",
+        "description": "Refine your pronunciation with real-time feedback"
+      },
+      "writing": {
+        "title": "Writing Practice",
+        "description": "Enhance writing skills with AI-driven grammar and style analysis"
+      },
+      "listening": {
+        "title": "Listening Practice",
+        "description": "Improve listening skills with contextual audio content"
+      },
+      "integratedModes": "Integrated Learning Modes"
+    }
+  },
+  "aiTutorRoom": {
+    "learningActivities": "Learning Activities",
+    "learningProgress": "Learning Progress",
+    "speakingChallenges": "Speaking Challenges",
+    "chooseTopic": "Choose a topic to practice",
+    "customSpeakingPractice": "Custom Speaking Practice",
+    "generate": "Generate",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording",
+    "listen": "Listen",
+    "pause": "Pause",
+    "processing": "Processing...",
+    "liveSpeech": "Live Speech:",
+    "listening": "Listening...",
+    "speakingPracticeReady": "Speaking Practice Ready!",
+    "speakingInstructions": "Instructions:",
+    "speakingInstruction1": "Click \"Start Recording\" when you're ready",
+    "speakingInstruction2": "Speak clearly and naturally",
+    "speakingInstruction3": "Click \"Stop Recording\" when finished",
+    "speakingInstruction4": "I'll provide pronunciation feedback",
+    "speakingConfidence": "Take your time and speak with confidence!",
+    "flashcardsGenerated": "Flashcards Generated!",
+    "flashcardsTip": "Try to answer each question before flipping the card to see the answer.",
+    "quizGenerated": "New Quiz Generated!",
+    "quizGoodLuck": "Good luck!",
+    "contentGenerated": "Content Generated!",
+    "contentOptions": "You can now:",
+    "contentOption1": "Read the summary I've created",
+    "contentOption2": "Study with flashcards I'll generate",
+    "contentOption3": "Take a quiz to test your understanding",
+    "contentOption4": "Ask questions about the content",
+    "whatWouldYouLike": "What would you like to do first?",
+    "learningCards": {
+      "speaking": {
+        "title": "Speaking Practice",
+        "description": "Practice pronunciation and conversation",
+        "tryPrompt": "Try: Hello! Please introduce yourself and tell me about your hobbies.",
+        "keyPhrases": "Key phrases:",
+        "progress": "Progress"
+      },
+      "reading": {
+        "title": "Reading Practice", 
+        "description": "Improve reading comprehension",
+        "progress": "Progress"
+      },
+      "writing": {
+        "title": "Writing Practice",
+        "description": "Enhance writing skills with grammar and style feedback", 
+        "progress": "Progress"
+      },
+      "listening": {
+        "title": "Listening Practice",
+        "description": "Develop listening skills",
+        "progress": "Progress"
+      }
+    },
+    "readingInterface": {
+      "uploadFile": "Upload File (PDF, DOC, TXT, PPT)",
+      "orGenerateContent": "Or ask me to generate content about a topic you're interested in",
+      "placeholder": "e.g., 'Tell me about artificial intelligence'",
+      "analyze": "Analyze"
+    },
+    "progressLabels": {
+      "speaking": "Speaking",
+      "reading": "Reading", 
+      "writing": "Writing",
+      "listening": "Listening"
+    },
+    "aiMessages": {
+      "welcomeMessage": "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking, reading, writing, and listening. What would you like to work on today?",
+      "speakingChallengeIntro": "Great! Let's work on your speaking skills. Here's your challenge:",
+      "speakingChallengeInstructions": "Take your time and speak clearly. I'll provide feedback on your pronunciation and fluency."
+    },
+    "buttonLabels": {
+      "speakingPractice": "Speaking Practice",
+      "readingPractice": "Reading Practice"
+    },
+    "interfaceTitles": {
+      "readingPractice": "Reading Practice",
+      "readingInstructions": "Upload a file or provide text to start your reading practice"
+    },
+    "speakingProgress": {
+      "title": "Your Speaking Progress",
+      "recordings": "Recordings",
+      "average": "Average",
+      "bestScore": "Best Score",
+      "completed": "Completed"
+    },
+    "speakingChallenges": {
+      "currentChallenge": "Current Challenge:",
+      "selfIntroduction": "Self Introduction",
+      "dailyRoutine": "Daily Routine", 
+      "travelStory": "Travel Story",
+      "futureGoals": "Future Goals",
+      "environmentalIssues": "Environmental Issues",
+      "technologyImpact": "Technology Impact",
+      "selfIntroductionPrompt": "Hello! Please introduce yourself and tell me about your hobbies.",
+      "dailyRoutinePrompt": "Describe your typical day from morning to evening.",
+      "travelStoryPrompt": "Tell me about your most memorable travel experience.",
+      "futureGoalsPrompt": "What are your career goals and how do you plan to achieve them?",
+      "environmentalIssuesPrompt": "Discuss the most important environmental challenge facing our world today.",
+      "technologyImpactPrompt": "How has technology changed the way we communicate and work?"
+    },
+    "difficultyLabels": {
+      "beginner": "beginner",
+      "intermediate": "intermediate",
+      "advanced": "advanced",
+      "easy": "easy",
+      "medium": "medium",
+      "hard": "hard"
+    },
+    "categories": {
+      "personal": "Personal",
+      "dailyLife": "Daily Life",
+      "travel": "Travel",
+      "career": "Career",
+      "society": "Society",
+      "technology": "Technology"
+    }
+  }
+}
