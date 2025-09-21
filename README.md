@@ -15,53 +15,52 @@ npm run setup-db    # Create DynamoDB tables
 npm run setup-lex   # Set up Lex bot
 
 # Development
-npm run dev         # Start both frontend (localhost:5173) and backend (localhost:3000)
-npm run backend     # Backend API only
-npm run frontend    # React app only
+npm run dev         # Start both frontend (localhost:3001) and backend (localhost:3000)
 
-# Testing
-npm run test                    # Run all tests
-npm run test-integration        # Test all services
-npm run test-user              # Test user management
-npm run test-conversation      # Test conversation features
-npm run test-speech            # Test speech processing
-npm run test-adaptive          # Test adaptive learning
-npm run test-roleplay          # Test role-playing scenarios
+# Backend Deployment (App Runner)
+cd backend
+npm run setup:apprunner     # Initial setup for App Runner deployment
+npm run deploy:apprunner    # Deploy to AWS App Runner
+npm run docker:build        # Build Docker image
+npm run docker:run          # Run Docker container locally
 
-# Deployment
-npm run deploy                 # Deploy complete system
-cd backend; npm run deploy  # Backend only
-cd frontend; npm run build  # Frontend build
-aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
+# Frontend Deployment (S3)
+cd frontend
+npm run build              # Build frontend
+aws s3 sync dist/ s3://ai-language-learning-frontend-dev --delete  # Deploy to S3
 ```
 
 ## User Interface
-- **Main App**: http://localhost:3001 (Frontend)
-- **API Health**: http://localhost:3000/health
-- **Language Detection API**: http://localhost:3000/api/language/detect
-- **Translation API**: http://localhost:3000/api/language/translate
+- **Local Development**: 
+  - Frontend: http://localhost:3001
+  - Backend API: http://localhost:3000
+- **Production**:
+  - Frontend: https://ai-language-learning-frontend-dev.s3-website-ap-southeast-1.amazonaws.com
+  - Backend API: https://zkr9kgcmpu.ap-southeast-1.awsapprunner.com
+- **API Health**: `/health`
+- **Language Detection API**: `/api/language/detect`
+- **Translation API**: `/api/language/translate`
 
 ## Tech Stack
-- **Backend**: Node.js, Express.js, Serverless Framework
+- **Backend**: Node.js, Express.js, Docker
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS
 - **Database**: In-memory storage (Map-based)
 - **AI Services**: Amazon Bedrock, Comprehend, Translate, Transcribe, Polly
-- **Cloud**: AWS Lambda, API Gateway, S3
+- **Cloud**: AWS App Runner, S3, ECR
 - **Authentication**: Anonymous access
 - **Multi-language**: AWS Comprehend (language detection), AWS Translate (translation)
-- **Deployment**: Serverless Framework
+- **Deployment**: AWS App Runner (backend), S3 (frontend)
 - **Package Manager**: npm
 
 ## Project Structure
 ```
-├── backend/                   # Serverless backend
+├── backend/                   # Express.js backend
 │   ├── src/
 │   │   ├── handlers/         # API route handlers
 │   │   │   ├── conversation.js  # Conversation management
 │   │   │   ├── language.js      # Language detection & translation
 │   │   │   ├── reading.js       # Text Explorer Lab features
-│   │   │   ├── speech.js        # Speech processing
-│   │   │   └── writing.js       # Writing practice
+│   │   │   └── speech.js        # Speech processing
 │   │   ├── services/         # AI service integrations
 │   │   │   ├── bedrockService.js      # Amazon Bedrock AI
 │   │   │   ├── languageDetectionService.js  # Language detection
@@ -76,7 +75,10 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 │   │   │   ├── requestLogger.js  # Request logging
 │   │   │   └── validation.js     # Input validation
 │   │   └── index.js          # Main server file
-│   └── serverless.yml        # Serverless configuration
+│   ├── scripts/              # Deployment scripts
+│   │   ├── deploy-apprunner.ps1    # App Runner deployment
+│   │   └── setup-apprunner.ps1     # App Runner setup
+│   └── Dockerfile            # Docker configuration
 ├── frontend/                  # React frontend
 │   ├── src/
 │   │   ├── components/       # React components
@@ -88,8 +90,7 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 │   │   │   ├── ReadingMode.tsx            # Text Explorer Lab
 │   │   │   └── SpeakingMode.tsx           # Voice Mastry Hub
 │   │   ├── pages/            # Page components
-│   │   │   ├── HomePage.tsx           # Landing page
-│   │   │   └── ConversationPage.tsx   # Conversation practice
+│   │   │   └── HomePage.tsx           # Landing page
 │   │   ├── contexts/         # React contexts
 │   │   │   └── LanguageContext.tsx    # Language management
 │   │   ├── services/         # API services
@@ -103,10 +104,8 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ├── scripts/                   # Utility scripts
 │   ├── setup-dynamodb.js     # Database setup
 │   ├── setup-lex-bot.js      # Lex bot setup
-│   ├── deploy-to-aws.js      # Deployment script
 │   └── test-audio.mp3        # Test audio file
-├── env.example               # Environment template
-└── TODO.md                   # Project roadmap and features
+└── env.example               # Environment template
 ```
 
 ## Features
@@ -117,7 +116,6 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 - **Speech Processing**: Voice input/output with Transcribe and Polly
 - **Text Explorer Lab**: AI-generated content with analysis, quizzes, and flashcards
 - **Voice Mastry Hub**: Pronunciation feedback and speaking challenges
-- **Writing Practice**: Grammar correction and style analysis with Bedrock
 - **Interactive Learning**: Flashcards, quizzes, and comprehension questions
 
 ### Multi-Language Support
@@ -147,9 +145,9 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 - **Amazon Polly**: Text-to-speech synthesis with multiple voices
 
 ### Infrastructure Services
-- **AWS Lambda**: Serverless compute for API endpoints
-- **Amazon API Gateway**: RESTful API management and routing
-- **Amazon S3**: File storage for audio files and generated content
+- **AWS App Runner**: Container-based backend hosting
+- **Amazon ECR**: Docker container registry
+- **Amazon S3**: Frontend hosting and file storage
 - **AWS CloudWatch**: Monitoring and logging
 - **In-Memory Storage**: Map-based storage for conversations
 
@@ -170,17 +168,14 @@ flowchart TD
     D -->|Conversation| E[AI Chat with Bedrock]
     D -->|Voice Mastry Hub| F[Audio Recording & Analysis]
     D -->|Text Explorer Lab| G[Content Generation & Analysis]
-    D -->|Writing Practice| H[Grammar & Style Analysis]
     
     E --> I[Language-Aware Response]
     F --> J[Pronunciation Feedback]
     G --> K[Quizzes & Flashcards]
-    H --> L[Writing Corrections]
     
     I --> M[Progress Tracking]
     J --> M
     K --> M
-    L --> M
     
     M --> N[Language Context Update]
     N --> O[Next Practice Recommendation]
@@ -199,7 +194,7 @@ flowchart TD
 ### AWS Services Flow
 ```mermaid
 flowchart TD
-    A[Frontend Request] --> B[Express.js API]
+    A[Frontend Request] --> B[Express.js API on App Runner]
     B --> C[Route Handler]
     
     C --> D{Request Type}
@@ -239,9 +234,14 @@ flowchart TD
         O
     end
     
-    subgraph "Express.js Server"
+    subgraph "Express.js Server on App Runner"
         B
         C
         J
+    end
+    
+    subgraph "Frontend on S3"
+        A
+        M
     end
 ```
