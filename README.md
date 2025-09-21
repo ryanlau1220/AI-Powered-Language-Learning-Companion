@@ -2,6 +2,9 @@
 
 Complete AI-powered language learning platform with real-time conversation, pronunciation feedback, multi-language support (English/Chinese), and adaptive learning using AWS AI services.
 
+## Demo Video
+Watch the system in action: [YouTube Demo](https://www.youtube.com/watch?v=DEYFJtiCJsI)
+
 ## Commands
 ```bash
 # Setup
