@@ -38,7 +38,7 @@ aws s3 sync dist/ s3://ai-language-learning-frontend-dev --delete  # Deploy to S
   - Frontend: http://localhost:3001
   - Backend API: http://localhost:3000
 - **Production**:
-  - Frontend: https://ai-language-learning-frontend-dev.s3-website-ap-southeast-1.amazonaws.com
+  - Frontend: http://ai-language-learning-frontend-dev.s3-website-ap-southeast-1.amazonaws.com/
   - Backend API: https://zkr9kgcmpu.ap-southeast-1.awsapprunner.com
 - **API Health**: `/health`
 - **Language Detection API**: `/api/language/detect`
