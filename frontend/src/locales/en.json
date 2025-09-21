@@ -224,54 +224,35 @@
     "contentOption3": "Take a quiz to test your understanding",
     "contentOption4": "Ask questions about the content",
     "whatWouldYouLike": "What would you like to do first?",
-    "learningCards": {
-      "speaking": {
-        "title": "Speaking Practice",
-        "description": "Practice pronunciation and conversation",
-        "tryPrompt": "Try: Hello! Please introduce yourself and tell me about your hobbies.",
-        "keyPhrases": "Key phrases:",
-        "progress": "Progress"
-      },
-      "reading": {
-        "title": "Reading Practice", 
-        "description": "Improve reading comprehension",
-        "progress": "Progress"
-      },
-      "writing": {
-        "title": "Writing Practice",
-        "description": "Enhance writing skills with grammar and style feedback", 
-        "progress": "Progress"
-      },
-      "listening": {
-        "title": "Listening Practice",
-        "description": "Develop listening skills",
-        "progress": "Progress"
-      }
-    },
+            "learningCards": {
+              "speaking": {
+                "title": "Voice Mastery Studio",
+                "description": "Master pronunciation and conversation skills with AI-powered feedback"
+              },
+              "reading": {
+                "title": "Text Explorer Lab", 
+                "description": "Explore texts and enhance comprehension with intelligent analysis"
+              }
+            },
     "readingInterface": {
       "uploadFile": "Upload File (PDF, DOC, TXT, PPT)",
       "orGenerateContent": "Or ask me to generate content about a topic you're interested in",
       "placeholder": "e.g., 'Tell me about artificial intelligence'",
       "analyze": "Analyze"
     },
-    "progressLabels": {
-      "speaking": "Speaking",
-      "reading": "Reading", 
-      "writing": "Writing",
-      "listening": "Listening"
-    },
     "aiMessages": {
-      "welcomeMessage": "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking, reading, writing, and listening. What would you like to work on today?",
+      "welcomeMessage": "Hello! I'm your AI language learning tutor. I'm here to help you master Voice Mastery Studio and explore Text Explorer Lab. What would you like to work on today?",
       "speakingChallengeIntro": "Great! Let's work on your speaking skills. Here's your challenge:",
       "speakingChallengeInstructions": "Take your time and speak clearly. I'll provide feedback on your pronunciation and fluency."
     },
     "buttonLabels": {
-      "speakingPractice": "Speaking Practice",
-      "readingPractice": "Reading Practice"
+      "speakingPractice": "Voice Mastery Studio",
+      "readingPractice": "Text Explorer Lab"
     },
+    "textInputPlaceholder": "Type your message here...",
     "interfaceTitles": {
-      "readingPractice": "Reading Practice",
-      "readingInstructions": "Upload a file or provide text to start your reading practice"
+      "readingPractice": "Text Explorer Lab",
+      "readingInstructions": "Upload a file or provide text to start your text exploration"
     },
     "speakingProgress": {
       "title": "Your Speaking Progress",

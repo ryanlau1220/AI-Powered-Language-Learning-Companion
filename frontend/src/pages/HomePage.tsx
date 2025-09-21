@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Sparkles, BookOpen, Mic, Headphones, PenTool, MessageCircle, Target, TrendingUp } from 'lucide-react'
+import { Sparkles, BookOpen, Mic, Headphones, PenTool, MessageCircle } from 'lucide-react'
 import AITutorRoom from '../components/AITutorRoom'
 import SpeakingMode from '../components/SpeakingMode'
 import ReadingMode from '../components/ReadingMode'

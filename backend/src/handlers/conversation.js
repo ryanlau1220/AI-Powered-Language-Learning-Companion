@@ -33,14 +33,15 @@ router.post('/start', async (req, res) => {
 // Send message in conversation
 router.post('/message', async (req, res) => {
   try {
-    const { conversationId, message, audioData } = req.body;
+    const { conversationId, message, audioData, uiLanguage } = req.body;
     const userId = req.user?.userId || 'anonymous';
     
     const response = await conversationService.processMessage({
       conversationId,
       userId,
       message,
-      audioData
+      audioData,
+      uiLanguage
     });
     
     res.status(200).json({

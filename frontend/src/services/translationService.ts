@@ -200,7 +200,7 @@ class TranslationService {
   /**
    * Format text based on language (for numbers, dates, etc.)
    */
-  public formatText(text: string, language: 'en' | 'zh'): string {
+  public formatText(text: string, _language: 'en' | 'zh'): string {
     // Add language-specific formatting here if needed
     return text;
   }

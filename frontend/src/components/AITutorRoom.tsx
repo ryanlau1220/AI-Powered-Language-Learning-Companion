@@ -5,15 +5,12 @@ import {
   MicOff, 
   Volume2, 
   BookOpen, 
-  PenTool, 
-  Headphones, 
   MessageCircle,
   Pause,
   RotateCcw,
   CheckCircle,
   Loader2,
-  Sparkles,
-  TrendingUp
+  Sparkles
 } from 'lucide-react'
 import { apiService } from '../services/api'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -24,16 +21,12 @@ interface AITutorRoomProps {
 
 interface LearningCard {
   id: string
-  type: 'speaking' | 'reading' | 'writing' | 'listening'
+  type: 'speaking' | 'reading'
   title: string
   description: string
   content?: string
   prompt?: string
   isActive: boolean
-  progress?: number
-  speakingPrompt?: string
-  expectedPhrases?: string[]
-  difficulty?: 'beginner' | 'intermediate' | 'advanced'
 }
 
 interface AIResponse {
@@ -41,7 +34,7 @@ interface AIResponse {
   confidence: number
   sentiment: string
   suggestedCards?: LearningCard[]
-  currentMode?: 'speaking' | 'reading' | 'writing' | 'listening'
+  currentMode?: 'speaking' | 'reading'
 }
 
 interface PronunciationFeedback {
@@ -82,52 +75,26 @@ interface ReadingPassage {
   readingTime: number // in minutes
 }
 
-interface WritingExercise {
-  id: string
-  title: string
-  prompt: string
-  type: 'email' | 'essay' | 'story' | 'letter' | 'report'
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  wordLimit?: number
-  timeLimit?: number // in minutes
-  requirements: string[]
-}
-
-interface WritingFeedback {
-  overallScore: number
-  grammarScore: number
-  vocabularyScore: number
-  structureScore: number
-  styleScore: number
-  suggestions: Array<{
-    type: 'grammar' | 'vocabulary' | 'structure' | 'style'
-    message: string
-    position?: number
-    suggestion?: string
-  }>
-  strengths: string[]
-  improvements: string[]
-}
 
 const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
-  const { translate } = useLanguage()
+  const { translate, uiLanguage } = useLanguage()
   const [isRecording, setIsRecording] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [currentMode, setCurrentMode] = useState<'speaking' | 'reading' | 'writing' | 'listening' | 'flashcards' | 'quiz' | 'qa' | null>(null)
+  const [currentMode, setCurrentMode] = useState<'speaking' | 'reading' | 'flashcards' | 'quiz' | 'qa' | null>(null)
   const [learningCards, setLearningCards] = useState<LearningCard[]>([])
   const [aiResponse, setAiResponse] = useState<AIResponse | null>(null)
   const [conversationHistory, setConversationHistory] = useState<Array<{type: 'user' | 'ai', content: string, timestamp: Date}>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [pronunciationFeedback, setPronunciationFeedback] = useState<PronunciationFeedback | null>(null)
   const [currentSpeakingPrompt, setCurrentSpeakingPrompt] = useState<string>('')
-  const [speakingChallenges] = useState<Array<{id: string, title: string, prompt: string, difficulty: 'easy' | 'medium' | 'hard', category: string}>>([
-    { id: '1', title: 'Self Introduction', prompt: 'Hello! Please introduce yourself and tell me about your hobbies.', difficulty: 'easy', category: 'Personal' },
-    { id: '2', title: 'Daily Routine', prompt: 'Describe your typical day from morning to evening.', difficulty: 'easy', category: 'Daily Life' },
-    { id: '3', title: 'Travel Story', prompt: 'Tell me about your most memorable travel experience.', difficulty: 'medium', category: 'Travel' },
-    { id: '4', title: 'Future Goals', prompt: 'What are your career goals and how do you plan to achieve them?', difficulty: 'medium', category: 'Career' },
-    { id: '5', title: 'Environmental Issues', prompt: 'Discuss the most important environmental challenge facing our world today.', difficulty: 'hard', category: 'Society' },
-    { id: '6', title: 'Technology Impact', prompt: 'How has technology changed the way we communicate and work?', difficulty: 'hard', category: 'Technology' }
+  const [speakingChallenges] = useState<Array<{id: string, title: string, prompt: string, category: string}>>([
+    { id: '1', title: 'Self Introduction', prompt: 'Hello! Please introduce yourself and tell me about your hobbies.', category: 'Personal' },
+    { id: '2', title: 'Daily Routine', prompt: 'Describe your typical day from morning to evening.', category: 'Daily Life' },
+    { id: '3', title: 'Travel Story', prompt: 'Tell me about your most memorable travel experience.', category: 'Travel' },
+    { id: '4', title: 'Future Goals', prompt: 'What are your career goals and how do you plan to achieve them?', category: 'Career' },
+    { id: '5', title: 'Environmental Issues', prompt: 'Discuss the most important environmental challenge facing our world today.', category: 'Society' },
+    { id: '6', title: 'Technology Impact', prompt: 'How has technology changed the way we communicate and work?', category: 'Technology' }
   ])
 
   // Function to get translated speaking challenges
@@ -135,18 +102,17 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     return speakingChallenges.map(challenge => ({
       ...challenge,
       title: translate(`aiTutorRoom.speakingChallenges.${challenge.id === '1' ? 'selfIntroduction' : 
-                                                          challenge.id === '2' ? 'dailyRoutine' :
-                                                          challenge.id === '3' ? 'travelStory' :
-                                                          challenge.id === '4' ? 'futureGoals' :
-                                                          challenge.id === '5' ? 'environmentalIssues' :
-                                                          'technologyImpact'}`, challenge.title),
+                                                      challenge.id === '2' ? 'dailyRoutine' :
+                                                      challenge.id === '3' ? 'travelStory' :
+                                                      challenge.id === '4' ? 'futureGoals' :
+                                                      challenge.id === '5' ? 'environmentalIssues' :
+                                                      'technologyImpact'}`, challenge.title),
       prompt: translate(`aiTutorRoom.speakingChallenges.${challenge.id === '1' ? 'selfIntroductionPrompt' : 
-                                                           challenge.id === '2' ? 'dailyRoutinePrompt' :
-                                                           challenge.id === '3' ? 'travelStoryPrompt' :
-                                                           challenge.id === '4' ? 'futureGoalsPrompt' :
-                                                           challenge.id === '5' ? 'environmentalIssuesPrompt' :
-                                                           'technologyImpactPrompt'}`, challenge.prompt),
-      difficulty: translate(`aiTutorRoom.difficultyLabels.${challenge.difficulty}`, challenge.difficulty),
+                                                       challenge.id === '2' ? 'dailyRoutinePrompt' :
+                                                       challenge.id === '3' ? 'travelStoryPrompt' :
+                                                       challenge.id === '4' ? 'futureGoalsPrompt' :
+                                                       challenge.id === '5' ? 'environmentalIssuesPrompt' :
+                                                       'technologyImpactPrompt'}`, challenge.prompt),
       category: translate(`aiTutorRoom.categories.${challenge.category.toLowerCase().replace(' ', '')}`, challenge.category)
     }))
   }
@@ -176,10 +142,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   const [showComprehension, setShowComprehension] = useState(false)
   const [readingAnswers, setReadingAnswers] = useState<number[]>([])
   const [readingScore, setReadingScore] = useState<number | null>(null)
-  const [currentWritingExercise, setCurrentWritingExercise] = useState<WritingExercise | null>(null)
-  const [writingText, setWritingText] = useState<string>('')
-  const [writingFeedback, setWritingFeedback] = useState<WritingFeedback | null>(null)
-  const [, setShowWritingEditor] = useState(false)
   const [currentTranscript, setCurrentTranscript] = useState('')
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -196,9 +158,25 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
           proficiencyLevel: 'intermediate'
         })
         
+        console.log('🔍 Conversation start response:', response)
+        console.log('🔍 Response data:', response.data)
+        
         if (response.data.success) {
           setConversationId(response.data.data.conversationId)
           console.log('✅ Conversation started:', response.data.data.conversationId)
+          
+          // Add welcome message to conversation history
+          if (response.data.data.messages && response.data.data.messages.length > 0) {
+            const welcomeMessage = {
+              type: 'ai' as const,
+              content: response.data.data.messages[0].content,
+              timestamp: new Date()
+            }
+            setConversationHistory([welcomeMessage])
+            console.log('📝 Welcome message added:', welcomeMessage)
+          }
+        } else {
+          console.error('❌ Conversation start failed:', response.data)
         }
       } catch (error) {
         console.error('❌ Failed to start conversation:', error)
@@ -210,7 +188,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
     const welcomeMessage = {
       type: 'ai' as const,
-      content: translate('aiTutorRoom.aiMessages.welcomeMessage', "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking, reading, writing, and listening. What would you like to work on today?"),
+      content: translate('aiTutorRoom.aiMessages.welcomeMessage', "Hello! I'm your AI language learning tutor. I'm here to help you practice speaking and reading. What would you like to work on today?"),
       timestamp: new Date()
     }
     setConversationHistory([welcomeMessage])
@@ -222,11 +200,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
         type: 'speaking',
         title: 'Speaking Practice',
         description: 'Practice pronunciation and conversation',
-        speakingPrompt: 'Hello! Please introduce yourself and tell me about your hobbies.',
-        expectedPhrases: ['Hello', 'My name is', 'I like', 'I enjoy'],
-        difficulty: 'beginner',
-        isActive: false,
-        progress: 0
+        isActive: false
       },
       {
         id: 'reading-1',
@@ -234,28 +208,8 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
         title: 'Reading Practice',
         description: 'Improve reading comprehension',
         content: 'Read engaging passages and test your understanding',
-        difficulty: 'intermediate',
-        isActive: false,
-        progress: 0
+        isActive: false
       },
-      {
-        id: 'writing-1',
-        type: 'writing',
-        title: 'Writing Practice',
-        description: 'Enhance writing skills with grammar and style feedback',
-        content: 'Practice different writing styles and get real-time feedback',
-        difficulty: 'intermediate',
-        isActive: false,
-        progress: 0
-      },
-      {
-        id: 'listening-1',
-        type: 'listening',
-        title: 'Listening Practice',
-        description: 'Develop listening skills',
-        isActive: false,
-        progress: 0
-      }
     ])
   }, [])
 
@@ -416,6 +370,74 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     }
   }
 
+  const handleSendTextMessage = async () => {
+    if (!currentTranscript.trim() || !conversationId) {
+      return
+    }
+
+    const message = currentTranscript.trim()
+    setCurrentTranscript('') // Clear the input
+    
+    // Add user message to conversation history immediately
+    const userMessage = {
+      type: 'user' as const,
+      content: message,
+      timestamp: new Date()
+    }
+    setConversationHistory(prev => [...prev, userMessage])
+
+    setIsLoading(true)
+    try {
+      console.log('🚀 Sending message:', message, 'to conversation:', conversationId)
+      
+      // Send to conversation API with proper message format
+      const response = await apiService.sendMessage({
+        conversationId: conversationId,
+        message: message,
+        uiLanguage: uiLanguage
+      })
+      
+      console.log('📨 API Response:', response)
+      console.log('📨 Response data:', response.data)
+      console.log('📨 Response status:', response.status)
+      
+      const responseContent = response.data.data?.response || response.data.data?.content || response.data.data?.text || response.data.content || response.data.text || 'Sorry, I could not generate a response.'
+      
+      const aiMessage = {
+        type: 'ai' as const,
+        content: responseContent,
+        timestamp: new Date()
+      }
+      setConversationHistory(prev => [...prev, aiMessage])
+      
+      // Update AI response state
+      setAiResponse({
+        text: responseContent,
+        confidence: response.data.data?.confidence || response.data.data?.metadata?.confidence || response.data.metadata?.confidence || 0.8,
+        sentiment: response.data.data?.sentiment || response.data.data?.metadata?.sentiment || response.data.metadata?.sentiment || 'neutral'
+      })
+      
+      // Auto-speak AI response
+      if (responseContent) {
+        await playAudio(responseContent)
+      }
+      
+    } catch (error) {
+      console.error('Error sending text message:', error)
+      
+      // Add error message to conversation
+      const errorMessage = {
+        type: 'ai' as const,
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: new Date()
+      }
+      setConversationHistory(prev => [...prev, errorMessage])
+      
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const analyzePronunciation = async (base64Audio: string, transcribedText: string) => {
     setIsAnalyzing(true)
     try {
@@ -512,70 +534,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     }
   }
 
-  const generateWritingExercise = async (type?: string) => {
-    setIsLoading(true)
-    try {
-      // For now, use fallback exercise since we don't have a generate endpoint
-      console.log('Generating writing exercise for type:', type || 'essay')
-      
-      const exercise: WritingExercise = {
-        id: `writing-${Date.now()}`,
-        title: 'Writing Exercise',
-        prompt: 'Write about your favorite hobby and explain why you enjoy it.',
-        type: (type as any) || 'essay',
-        difficulty: 'intermediate',
-        wordLimit: 200,
-        timeLimit: 15,
-        requirements: ['Use proper grammar', 'Include specific examples', 'Write in complete sentences']
-      }
-      
-      setCurrentWritingExercise(exercise)
-      setWritingText('')
-      setWritingFeedback(null)
-      setShowWritingEditor(true)
-    } catch (error) {
-      console.error('Error generating writing exercise:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
-  const analyzeWriting = async (text: string) => {
-    setIsLoading(true)
-    try {
-      const response = await apiService.analyzeWriting({
-        text: text,
-        language: 'en'
-      })
-      
-      setWritingFeedback(response.data)
-      
-      // Update progress
-      setLearningCards(prev => prev.map(card => 
-        card.type === 'writing' 
-          ? { ...card, progress: Math.min(100, (card.progress || 0) + 15) }
-          : card
-      ))
-    } catch (error) {
-      console.error('Error analyzing writing:', error)
-      // Fallback feedback
-      setWritingFeedback({
-        overallScore: 7,
-        grammarScore: 7,
-        vocabularyScore: 7,
-        structureScore: 7,
-        styleScore: 7,
-        suggestions: [
-          { type: 'grammar', message: 'Check your sentence structure' },
-          { type: 'vocabulary', message: 'Try using more varied vocabulary' }
-        ],
-        strengths: ['Good ideas', 'Clear communication'],
-        improvements: ['Work on grammar', 'Expand vocabulary']
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const detectLearningMode = (text: string) => {
     if (!text || typeof text !== 'string') {
@@ -588,31 +547,19 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       setCurrentMode('speaking')
       updateActiveCard('speaking')
       // Set speaking prompt when entering speaking mode
-      const speakingCard = learningCards.find(card => card.type === 'speaking')
-      if (speakingCard?.speakingPrompt) {
-        setCurrentSpeakingPrompt(speakingCard.speakingPrompt)
-      }
+      setCurrentSpeakingPrompt('Hello! Please introduce yourself and tell me about your hobbies.')
     } else if (lowerText.includes('read') || lowerText.includes('passage') || lowerText.includes('text')) {
       setCurrentMode('reading')
       updateActiveCard('reading')
       // Generate reading passage when entering reading mode
       generateReadingPassage()
-    } else if (lowerText.includes('write') || lowerText.includes('grammar') || lowerText.includes('email')) {
-      setCurrentMode('writing')
-      updateActiveCard('writing')
-      // Generate writing exercise when entering writing mode
-      generateWritingExercise()
-    } else if (lowerText.includes('listen') || lowerText.includes('audio') || lowerText.includes('hear')) {
-      setCurrentMode('listening')
-      updateActiveCard('listening')
     }
   }
 
-  const updateActiveCard = (type: 'speaking' | 'reading' | 'writing' | 'listening') => {
+  const updateActiveCard = (type: 'speaking' | 'reading') => {
     setLearningCards(prev => prev.map(card => ({
       ...card,
-      isActive: card.type === type,
-      progress: card.type === type ? Math.min((card.progress || 0) + 20, 100) : card.progress
+      isActive: card.type === type
     })))
   }
 
@@ -991,12 +938,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     setReadingScore(score)
     setShowComprehension(false)
     
-    // Update progress
-    setLearningCards(prev => prev.map(card => 
-      card.type === 'reading' 
-        ? { ...card, progress: Math.min(100, (card.progress || 0) + 20) }
-        : card
-    ))
   }
 
   const handleCardClick = (card: LearningCard) => {
@@ -1004,29 +945,13 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       setCurrentMode('speaking')
       updateActiveCard('speaking')
       
-      // Start with the default speaking challenge if available
-      if (card.speakingPrompt) {
-        const challenge = {
-          id: card.id,
-          title: card.title,
-          prompt: card.speakingPrompt,
-          difficulty: card.difficulty || 'beginner',
-          category: 'Speaking Practice'
-        }
-        startSpeakingChallenge(challenge)
-      } else {
-        // Fallback to generic speaking practice
-        const prompt = `I want to practice ${card.type}. ${card.description}`
-        processTextInput(prompt)
-      }
+      // Start with default speaking practice
+      const prompt = `I want to practice ${card.type}. ${card.description}`
+      processTextInput(prompt)
     } else if (card.type === 'reading') {
       setCurrentMode('reading')
       updateActiveCard('reading')
       generateReadingPassage()
-    } else if (card.type === 'writing') {
-      setCurrentMode('writing')
-      updateActiveCard('writing')
-      generateWritingExercise()
     } else {
       const prompt = `I want to practice ${card.type}. ${card.description}`
       processTextInput(prompt)
@@ -1037,8 +962,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     switch (mode) {
       case 'speaking': return <Mic className="w-5 h-5" />
       case 'reading': return <BookOpen className="w-5 h-5" />
-      case 'writing': return <PenTool className="w-5 h-5" />
-      case 'listening': return <Headphones className="w-5 h-5" />
       default: return <MessageCircle className="w-5 h-5" />
     }
   }
@@ -1047,8 +970,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     switch (mode) {
       case 'speaking': return 'bg-orange-500'
       case 'reading': return 'bg-purple-500'
-      case 'writing': return 'bg-green-500'
-      case 'listening': return 'bg-blue-500'
       default: return 'bg-gray-500'
     }
   }
@@ -1087,42 +1008,42 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">{translate('aiTutor.tutorName', 'AI Tutor')}</h3>
                   <div className="bg-gray-50 rounded-lg p-4">
-                    {conversationHistory.length > 0 && (
-                      <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
-                        <ReactMarkdown
-                          components={{
-                            h1: ({children}) => <h1 className="text-xl font-bold text-gray-800 mb-3">{children}</h1>,
-                            h2: ({children}) => <h2 className="text-lg font-semibold text-gray-800 mb-2">{children}</h2>,
-                            h3: ({children}) => <h3 className="text-base font-semibold text-gray-800 mb-2">{children}</h3>,
-                            p: ({children}) => <p className="mb-3">{children}</p>,
-                            strong: ({children}) => <strong className="font-semibold text-gray-800">{children}</strong>,
-                            em: ({children}) => <em className="italic text-gray-600">{children}</em>,
-                            ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
-                            ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
-                            li: ({children}) => <li className="text-gray-700">{children}</li>,
-                            code: ({children}) => <code className="bg-gray-200 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
-                            pre: ({children}) => <pre className="bg-gray-200 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
-                            blockquote: ({children}) => <blockquote className="border-l-4 border-indigo-300 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
-                            hr: () => <hr className="border-gray-300 my-4" />
-                          }}
-                        >
-                          {(() => {
-                            const lastMessage = conversationHistory[conversationHistory.length - 1];
-                            // Hide welcome message if there are multiple messages or if it's not the welcome message
-                            const isWelcomeMessage = lastMessage.content.includes("Hello! I'm your AI language learning tutor") && 
-                                                   lastMessage.content.includes("What would you like to work on today?");
-                            
-                            if (isWelcomeMessage && conversationHistory.length === 1) {
-                              return lastMessage.content;
-                            } else if (!isWelcomeMessage) {
-                              return lastMessage.content;
-                            } else {
-                              return ""; // Hide welcome message if there are other messages
-                            }
-                          })()}
-                        </ReactMarkdown>
-                      </div>
-                    )}
+                    {(() => {
+                      const lastMessage = conversationHistory[conversationHistory.length - 1];
+                      if (!lastMessage) {
+                        return <div className="text-gray-500 italic">Waiting for your message...</div>;
+                      }
+                      
+                      // Show the last AI message
+                      if (lastMessage.type === 'ai') {
+                        return (
+                          <div className="text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                            <ReactMarkdown
+                              components={{
+                                h1: ({children}) => <h1 className="text-xl font-bold text-gray-800 mb-3">{children}</h1>,
+                                h2: ({children}) => <h2 className="text-lg font-semibold text-gray-800 mb-2">{children}</h2>,
+                                h3: ({children}) => <h3 className="text-base font-semibold text-gray-800 mb-2">{children}</h3>,
+                                p: ({children}) => <p className="mb-3">{children}</p>,
+                                strong: ({children}) => <strong className="font-semibold text-gray-800">{children}</strong>,
+                                em: ({children}) => <em className="italic text-gray-600">{children}</em>,
+                                ul: ({children}) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+                                ol: ({children}) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+                                li: ({children}) => <li className="text-gray-700">{children}</li>,
+                                code: ({children}) => <code className="bg-gray-200 px-1 py-0.5 rounded text-sm font-mono">{children}</code>,
+                                pre: ({children}) => <pre className="bg-gray-200 p-3 rounded-lg overflow-x-auto mb-3">{children}</pre>,
+                                blockquote: ({children}) => <blockquote className="border-l-4 border-indigo-300 pl-4 italic text-gray-600 mb-3">{children}</blockquote>,
+                                hr: () => <hr className="border-gray-300 my-4" />
+                              }}
+                            >
+                              {lastMessage.content}
+                            </ReactMarkdown>
+                          </div>
+                        );
+                      }
+                      
+                      // If last message is from user, show a waiting message
+                      return <div className="text-gray-500 italic">AI is thinking...</div>;
+                    })()}
                     
               {/* Flashcards and Quiz Actions - Always show when content analysis exists */}
               {contentAnalysis && (flashcards.length > 0 || quiz.length > 0) && (
@@ -1516,13 +1437,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            challenge.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
-                            challenge.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {challenge.difficulty}
-                          </span>
                           <span className="text-xs text-gray-500">{challenge.category}</span>
                         </div>
                         <h5 className="font-medium text-gray-800 mb-1">{challenge.title}</h5>
@@ -1708,13 +1622,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-semibold text-purple-800">{currentReadingPassage?.title}</h4>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        currentReadingPassage?.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
-                        currentReadingPassage?.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {currentReadingPassage?.difficulty}
-                      </span>
                       <span className="text-sm text-purple-600">
                         {currentReadingPassage?.readingTime} min read
                       </span>
@@ -1803,144 +1710,6 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {/* Writing Exercise */}
-              {currentMode === 'writing' && currentWritingExercise && (
-                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-green-800">{currentWritingExercise.title}</h4>
-                    <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        currentWritingExercise.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
-                        currentWritingExercise.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {currentWritingExercise.difficulty}
-                      </span>
-                      <span className="text-sm text-green-600">
-                        {currentWritingExercise.wordLimit && `${currentWritingExercise.wordLimit} words`}
-                        {currentWritingExercise.timeLimit && ` • ${currentWritingExercise.timeLimit} min`}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <h5 className="font-medium text-green-800 mb-2">Writing Prompt:</h5>
-                    <p className="text-gray-700 mb-3">{currentWritingExercise.prompt}</p>
-                    
-                    <div className="mb-3">
-                      <h6 className="font-medium text-green-800 mb-1">Requirements:</h6>
-                      <ul className="text-sm text-gray-600 list-disc list-inside">
-                        {currentWritingExercise.requirements.map((req, index) => (
-                          <li key={index}>{req}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-green-800 mb-2">
-                      Your Writing:
-                    </label>
-                    <textarea
-                      value={writingText}
-                      onChange={(e) => setWritingText(e.target.value)}
-                      placeholder="Start writing your response here..."
-                      className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-                    />
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-xs text-gray-500">
-                        {writingText.length} words
-                        {currentWritingExercise.wordLimit && ` / ${currentWritingExercise.wordLimit}`}
-                      </span>
-                      <button
-                        onClick={() => analyzeWriting(writingText)}
-                        disabled={writingText.trim().length < 10}
-                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Analyze Writing
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Writing Feedback */}
-                  {writingFeedback && (
-                    <div className="mt-4 p-3 bg-white rounded border">
-                      <h5 className="font-medium text-green-800 mb-3">Writing Analysis:</h5>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="text-xl font-bold text-green-600">{writingFeedback.overallScore}/10</div>
-                          <div className="text-xs text-green-700">Overall</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xl font-bold text-green-600">{writingFeedback.grammarScore}/10</div>
-                          <div className="text-xs text-green-700">Grammar</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xl font-bold text-green-600">{writingFeedback.vocabularyScore}/10</div>
-                          <div className="text-xs text-green-700">Vocabulary</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xl font-bold text-green-600">{writingFeedback.structureScore}/10</div>
-                          <div className="text-xs text-green-700">Structure</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xl font-bold text-green-600">{writingFeedback.styleScore}/10</div>
-                          <div className="text-xs text-green-700">Style</div>
-                        </div>
-                      </div>
-                      
-                      {writingFeedback.strengths && writingFeedback.strengths.length > 0 && (
-                        <div className="mb-3">
-                          <h6 className="font-medium text-green-800 mb-1">Strengths:</h6>
-                          <ul className="text-sm text-green-700 list-disc list-inside">
-                            {writingFeedback.strengths.map((strength, index) => (
-                              <li key={index}>{strength}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {writingFeedback.improvements && writingFeedback.improvements.length > 0 && (
-                        <div className="mb-3">
-                          <h6 className="font-medium text-orange-800 mb-1">Areas for Improvement:</h6>
-                          <ul className="text-sm text-orange-700 list-disc list-inside">
-                            {writingFeedback.improvements.map((improvement, index) => (
-                              <li key={index}>{improvement}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      
-                      {writingFeedback.suggestions && writingFeedback.suggestions.length > 0 && (
-                        <div>
-                          <h6 className="font-medium text-blue-800 mb-1">Specific Suggestions:</h6>
-                          <div className="space-y-1">
-                            {writingFeedback.suggestions.map((suggestion, index) => (
-                              <div key={index} className="text-sm p-2 bg-blue-50 rounded">
-                                <span className={`font-medium ${
-                                  suggestion.type === 'grammar' ? 'text-red-700' :
-                                  suggestion.type === 'vocabulary' ? 'text-purple-700' :
-                                  suggestion.type === 'structure' ? 'text-green-700' :
-                                  'text-blue-700'
-                                }`}>
-                                  {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)}:
-                                </span>
-                                <span className="text-gray-700 ml-1">{suggestion.message}</span>
-                                {suggestion.suggestion && (
-                                  <div className="text-xs text-gray-600 mt-1 italic">
-                                    Suggestion: {suggestion.suggestion}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
 
               {/* Action Buttons */}
               {/* Speaking Prompt Input - Only show in speaking mode */}
@@ -1979,6 +1748,32 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   {isRecording ? <MicOff className="w-5 h-5 mr-2" /> : <Mic className="w-5 h-5 mr-2" />}
                   {isRecording ? translate('aiTutorRoom.stopRecording', 'Stop Recording') : translate('aiTutorRoom.startRecording', 'Start Recording')}
                 </button>
+
+                {/* Text Input for General Conversation */}
+                <div className="flex-1 max-w-md">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={currentTranscript}
+                      onChange={(e) => setCurrentTranscript(e.target.value)}
+                      placeholder={translate('aiTutorRoom.textInputPlaceholder', 'Type your message here...')}
+                      className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && currentTranscript.trim()) {
+                          handleSendTextMessage()
+                        }
+                      }}
+                      disabled={isLoading}
+                    />
+                    <button
+                      onClick={handleSendTextMessage}
+                      disabled={!currentTranscript.trim() || isLoading}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
 
                 {aiResponse && (
                   <button
@@ -2020,7 +1815,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
               {/* Conversation History */}
               <div className="max-h-64 overflow-y-auto space-y-3">
-                {conversationHistory.slice(0, -1).map((message, index) => (
+                {conversationHistory.map((message, index) => (
                   <div
                     key={index}
                     className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -2079,40 +1874,8 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                       {getModeIcon(card.type)}
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-semibold text-gray-800">{translate(`aiTutorRoom.learningCards.${card.type}.title`, card.title)}</h4>
-                        {card.difficulty && (
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            card.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
-                            card.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {translate(`aiTutorRoom.difficultyLabels.${card.difficulty}`, card.difficulty)}
-                          </span>
-                        )}
-                      </div>
+                      <h4 className="font-semibold text-gray-800">{translate(`aiTutorRoom.learningCards.${card.type}.title`, card.title)}</h4>
                       <p className="text-sm text-gray-600">{translate(`aiTutorRoom.learningCards.${card.type}.description`, card.description)}</p>
-                      
-                      {/* Speaking Prompt Preview */}
-                      {card.type === 'speaking' && card.speakingPrompt && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                          <strong>{translate('aiTutorRoom.learningCards.speaking.tryPrompt', 'Try:')}</strong> {card.speakingPrompt}
-                        </div>
-                      )}
-                      
-                      {/* Expected Phrases */}
-                      {card.type === 'speaking' && card.expectedPhrases && Array.isArray(card.expectedPhrases) && card.expectedPhrases.length > 0 && (
-                        <div className="mt-2">
-                          <div className="text-xs text-gray-500 mb-1">{translate('aiTutorRoom.learningCards.speaking.keyPhrases', 'Key phrases:')}</div>
-                          <div className="flex flex-wrap gap-1">
-                            {card.expectedPhrases.map((phrase, index) => (
-                              <span key={index} className="px-2 py-1 bg-gray-200 text-xs rounded">
-                                {phrase}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                   {card.isActive && (
@@ -2120,38 +1883,9 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                   )}
                 </div>
                 
-                {card.progress !== undefined && (
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                      <span>{translate(`aiTutorRoom.learningCards.${card.type}.progress`, 'Progress')}</span>
-                      <span>{card.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${getModeColor(card.type)}`}
-                        style={{ width: `${card.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
               </div>
             ))}
 
-            {/* Progress Summary */}
-            <div className="bg-white rounded-xl shadow-lg p-4 mt-6">
-              <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2" />
-                {translate('aiTutorRoom.learningProgress', 'Learning Progress')}
-              </h4>
-              <div className="space-y-2">
-                {learningCards.map((card) => (
-                  <div key={card.id} className="flex items-center justify-between text-sm">
-                    <span className="capitalize text-gray-600">{translate(`aiTutorRoom.progressLabels.${card.type}`, card.type)}</span>
-                    <span className="font-medium">{card.progress || 0}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

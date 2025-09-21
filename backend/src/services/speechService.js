@@ -131,7 +131,9 @@ class SpeechService {
           LanguageCode: languageCode || 'en-US',
           Settings: {
             ShowAlternatives: true,
-            MaxAlternatives: 3
+            MaxAlternatives: 3,
+            ChannelIdentification: false,
+            ShowSpeakerLabels: false
           }
         };
         
@@ -192,11 +194,24 @@ class SpeechService {
               
               console.log('Transcription result:', JSON.stringify(transcriptData, null, 2));
               
-              const transcriptText = transcriptData.results.transcripts[0].transcript;
+              const transcriptText = transcriptData.results.transcripts[0]?.transcript || '';
               const confidence = transcriptData.results.items[0]?.alternatives[0]?.confidence || 0.8;
               
               console.log('Extracted transcript:', transcriptText);
               console.log('Confidence:', confidence);
+              
+              // If transcript is empty and language is Chinese, provide a fallback message
+              if (!transcriptText && (languageCode === 'zh-CN' || languageCode === 'zh')) {
+                console.log('Empty Chinese transcript detected, providing fallback');
+                return {
+                  transcriptionId: jobName,
+                  text: 'Chinese speech detected but transcription unavailable. Please try speaking more clearly.',
+                  confidence: 0.5,
+                  alternatives: ['Chinese speech detected but transcription unavailable'],
+                  languageCode: languageCode || 'zh-CN',
+                  fallback: true
+                };
+              }
               
               // Clean up temporary file
               if (fs.existsSync(tempFilePath)) {
@@ -308,11 +323,31 @@ class SpeechService {
 
   async synthesizeSpeech({ text, voiceId, languageCode, userId }) {
     try {
+      // Detect if text contains Chinese characters
+      const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
+      const hasChinese = chinesePattern.test(text);
+      
+      // Set appropriate voice and language based on content
+      let finalVoiceId = voiceId;
+      let finalLanguageCode = languageCode;
+      
+      if (hasChinese) {
+        // Use Chinese voice for Chinese content
+        finalVoiceId = voiceId || 'Zhiyu'; // Chinese voice
+        finalLanguageCode = 'cmn-CN'; // Use cmn-CN instead of zh-CN for AWS Polly
+        console.log(`🔊 Detected Chinese content, using Chinese voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
+      } else {
+        // Use English voice for English content
+        finalVoiceId = voiceId || 'Joanna'; // English voice
+        finalLanguageCode = 'en-US';
+        console.log(`🔊 Detected English content, using English voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
+      }
+
       const params = {
         Text: text,
         OutputFormat: 'mp3',
-        VoiceId: voiceId || 'Joanna', // Default English voice
-        LanguageCode: languageCode || 'en-US',
+        VoiceId: finalVoiceId,
+        LanguageCode: finalLanguageCode,
         Engine: 'neural' // Use neural engine for better quality
       };
 
@@ -324,8 +359,8 @@ class SpeechService {
       return {
         audioData,
         format: 'mp3',
-        voiceId: voiceId || 'Joanna',
-        languageCode: languageCode || 'en-US'
+        voiceId: finalVoiceId,
+        languageCode: finalLanguageCode
       };
     } catch (error) {
       console.error('Error synthesizing speech:', error);

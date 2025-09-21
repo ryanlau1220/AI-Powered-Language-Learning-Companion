@@ -4,10 +4,10 @@ const speechService = require('../services/speechService');
 const { authenticateUser } = require('../middleware/auth');
 
 // Convert speech to text
-router.post('/transcribe', authenticateUser, async (req, res) => {
+router.post('/transcribe', async (req, res) => {
   try {
     const { audioData, languageCode } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     const transcription = await speechService.transcribeAudio({
       audioData,
@@ -29,10 +29,10 @@ router.post('/transcribe', authenticateUser, async (req, res) => {
 });
 
 // Convert text to speech
-router.post('/synthesize', authenticateUser, async (req, res) => {
+router.post('/synthesize', async (req, res) => {
   try {
     const { text, voiceId, languageCode } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     console.log('Speech synthesis request body:', req.body);
     console.log('Text parameter:', text);
@@ -65,10 +65,10 @@ router.post('/synthesize', authenticateUser, async (req, res) => {
 });
 
 // Get pronunciation feedback
-router.post('/pronunciation-feedback', authenticateUser, async (req, res) => {
+router.post('/pronunciation-feedback', async (req, res) => {
   try {
     const { audioData, text, languageCode } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     const feedback = await speechService.getPronunciationFeedback({
       audioData,
@@ -91,10 +91,10 @@ router.post('/pronunciation-feedback', authenticateUser, async (req, res) => {
 });
 
 // Analyze pronunciation with detailed feedback
-router.post('/analyze-pronunciation', authenticateUser, async (req, res) => {
+router.post('/analyze-pronunciation', async (req, res) => {
   try {
     const { audioData, text, language } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user?.userId || 'anonymous';
     
     const analysis = await speechService.analyzePronunciation({
       audioData,

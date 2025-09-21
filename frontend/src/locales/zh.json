@@ -223,54 +223,35 @@
     "contentOption3": "参加测验来测试你的理解",
     "contentOption4": "询问关于内容的问题",
     "whatWouldYouLike": "你想先做什么？",
-    "learningCards": {
-      "speaking": {
-        "title": "口语练习",
-        "description": "练习发音和对话",
-        "tryPrompt": "试试：你好！请介绍一下自己并告诉我你的爱好。",
-        "keyPhrases": "关键词组：",
-        "progress": "进度"
-      },
-      "reading": {
-        "title": "阅读练习",
-        "description": "提高阅读理解能力",
-        "progress": "进度"
-      },
-      "writing": {
-        "title": "写作练习",
-        "description": "通过语法和风格反馈提升写作技能",
-        "progress": "进度"
-      },
-      "listening": {
-        "title": "听力练习",
-        "description": "培养听力技能",
-        "progress": "进度"
-      }
-    },
+            "learningCards": {
+              "speaking": {
+                "title": "语音大师工作室",
+                "description": "通过AI智能反馈掌握发音和对话技巧"
+              },
+              "reading": {
+                "title": "文本探索实验室",
+                "description": "通过智能分析探索文本并提升理解能力"
+              }
+            },
     "readingInterface": {
       "uploadFile": "上传文件 (PDF, DOC, TXT, PPT)",
       "orGenerateContent": "或者让我为你感兴趣的主题生成内容",
       "placeholder": "例如：'告诉我关于人工智能'",
       "analyze": "分析"
     },
-    "progressLabels": {
-      "speaking": "口语",
-      "reading": "阅读",
-      "writing": "写作", 
-      "listening": "听力"
-    },
     "aiMessages": {
-      "welcomeMessage": "你好！我是你的AI语言学习导师。我在这里帮助你练习口语、阅读、写作和听力。你今天想练习什么？",
+      "welcomeMessage": "你好！我是你的AI语言学习导师。我在这里帮助你掌握语音大师工作室和探索文本探索实验室。你今天想练习什么？",
       "speakingChallengeIntro": "太好了！让我们来练习你的口语技能。这是你的挑战：",
       "speakingChallengeInstructions": "慢慢来，清晰地说话。我将对你的发音和流利度提供反馈。"
     },
     "buttonLabels": {
-      "speakingPractice": "口语练习",
-      "readingPractice": "阅读练习"
+      "speakingPractice": "语音大师工作室",
+      "readingPractice": "文本探索实验室"
     },
+    "textInputPlaceholder": "在这里输入您的消息...",
     "interfaceTitles": {
-      "readingPractice": "阅读练习",
-      "readingInstructions": "上传文件或提供文本来开始你的阅读练习"
+      "readingPractice": "文本探索实验室",
+      "readingInstructions": "上传文件或提供文本来开始你的文本探索"
     },
     "speakingProgress": {
       "title": "你的口语进度",

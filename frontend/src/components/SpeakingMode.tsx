@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Mic, MicOff, Play, Pause, RotateCcw, CheckCircle, Loader2 } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
+import { apiService } from '../services/api'
 
 interface SpeakingModeProps {
   onBack: () => void

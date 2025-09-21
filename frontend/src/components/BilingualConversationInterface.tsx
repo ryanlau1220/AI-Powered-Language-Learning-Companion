@@ -83,7 +83,7 @@ export const BilingualConversationInterface: React.FC<BilingualConversationInter
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
         <div className="flex items-center space-x-3">
           <h3 className="text-lg font-semibold text-gray-800">AI Language Tutor</h3>
-          <LanguageSwitcher size="sm" />
+          <LanguageSwitcher />
         </div>
         <div className="text-sm text-gray-500">
           Current: {currentLanguage.flag} {currentLanguage.name}

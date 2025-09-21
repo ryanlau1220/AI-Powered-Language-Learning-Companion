@@ -231,22 +231,26 @@ class BedrockService {
     const basePrompt = isChinese ? 
       `你是一个AI语言学习导师。${scenarioText}
 
+重要：你必须始终用中文与用户交流。
+
 语言: ${targetLanguage}
 熟练程度: ${proficiencyLevel}
 指示: ${proficiencyText}
 文化背景: ${culturalContextInstruction}
 
-用友好的问候开始对话并介绍场景。保持回复在100字以内，让语言学习变得有趣。
+用友好的中文问候开始对话并介绍场景。保持回复在100字以内，让语言学习变得有趣。记住：始终用中文回复。
 
 回复:` :
       `You are an AI language learning tutor. ${scenarioText}
+
+IMPORTANT: You must always communicate with the user in English.
 
 Language: ${targetLanguage}
 Proficiency Level: ${proficiencyLevel}
 Instructions: ${proficiencyText}
 Cultural Context: ${culturalContextInstruction}
 
-Start the conversation with a friendly greeting and introduce the scenario. Keep your response under 100 words and make it engaging for language learning.
+Start the conversation with a friendly English greeting and introduce the scenario. Keep your response under 100 words and make it engaging for language learning. Remember: Always respond in English.
 
 Response:`;
 
@@ -272,6 +276,8 @@ Response:`;
     const basePrompt = isChinese ? 
       `你是一个AI语言学习导师，在${scenario}场景中。
 
+重要：你必须用中文回复用户，因为用户使用的是中文。
+
 语言: ${targetLanguage}
 熟练程度: ${proficiencyLevel}
 用户意图: ${lexIntent}
@@ -282,10 +288,12 @@ ${historyText}
 
 用户消息: ${userMessage}
 
-自然地回应用户的消息。如果需要，提供有用的纠正，但不要过于苛刻。保持对话流畅和教育性。如果有语法问题，在你的回复中巧妙地纠正它们。
+自然地用中文回应用户的消息。如果需要，提供有用的纠正，但不要过于苛刻。保持对话流畅和教育性。如果有语法问题，在你的回复中巧妙地纠正它们。记住：始终用中文回复。
 
 回复:` :
       `You are an AI language learning tutor in a ${scenario} scenario.
+
+IMPORTANT: You must respond in English because the user is using English.
 
 Language: ${targetLanguage}
 Proficiency Level: ${proficiencyLevel}
@@ -297,7 +305,7 @@ ${historyText}
 
 User Message: ${userMessage}
 
-Respond naturally to the user's message. Provide helpful corrections if needed, but don't be overly critical. Keep the conversation flowing and educational. If there are grammar issues, subtly correct them in your response.
+Respond naturally in English to the user's message. Provide helpful corrections if needed, but don't be overly critical. Keep the conversation flowing and educational. If there are grammar issues, subtly correct them in your response. Remember: Always respond in English.
 
 Response:`;
 

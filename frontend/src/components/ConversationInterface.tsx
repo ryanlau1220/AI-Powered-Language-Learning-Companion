@@ -89,7 +89,7 @@ const ConversationInterface: React.FC<ConversationInterfaceProps> = ({
       type: 'user',
       content: message,
       timestamp: new Date().toISOString(),
-      detectedLanguage: detectedLanguage,
+      detectedLanguage: detectedLanguage || undefined,
       languageConfidence: languageDetectionResult?.confidence
     }
 

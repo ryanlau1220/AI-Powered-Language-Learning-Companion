@@ -58,7 +58,7 @@ class ConversationService {
     }
   }
 
-  async processMessage({ conversationId, userId, message, audioData }) {
+  async processMessage({ conversationId, userId, message, audioData, uiLanguage }) {
     try {
       // Get conversation from memory
       const conversation = this.conversations.get(conversationId);
@@ -66,26 +66,37 @@ class ConversationService {
         throw new Error('Conversation not found');
       }
 
-      // Detect language of user message
-      const languageDetection = await languageDetectionService.detectLanguage(message, userId);
-      console.log(`🔍 Detected language: ${languageDetection.detectedLanguage} (confidence: ${languageDetection.confidence})`);
-
-      // Update conversation language if detection confidence is high
-      if (languageDetection.confidence > 0.7 && languageDetection.isSupported) {
-        const newLanguage = languageDetection.detectedLanguage;
-        if (newLanguage !== conversation.language) {
-          console.log(`🔄 Language switched from ${conversation.language} to ${newLanguage}`);
-          conversation.language = newLanguage;
-          conversation.culturalContext = languageDetection.culturalContext;
-          
-          // Track language change
-          conversation.languageHistory.push({
-            from: conversation.language,
-            to: newLanguage,
-            timestamp: new Date().toISOString(),
-            confidence: languageDetection.confidence
-          });
+      // Use UI language as the primary indicator - respect user's choice
+      let targetLanguage = uiLanguage || 'en';
+      
+      // Only override if UI language is not explicitly set and message contains Chinese characters
+      if (!uiLanguage) {
+        const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
+        if (chinesePattern.test(message)) {
+          targetLanguage = 'zh';
+          console.log(`🔍 UI language not set, message contains Chinese characters, using Chinese`);
+        } else {
+          console.log(`🔍 UI language not set, using default English`);
         }
+      } else {
+        console.log(`🔍 Using UI language: ${targetLanguage}`);
+      }
+
+      // Update conversation language if different
+      if (targetLanguage !== conversation.language) {
+        console.log(`🔄 Language switched from ${conversation.language} to ${targetLanguage}`);
+        conversation.language = targetLanguage;
+        conversation.culturalContext = targetLanguage === 'zh' ? 'Chinese' : 'Western';
+        
+        // Track language change
+        conversation.languageHistory.push({
+          from: conversation.language,
+          to: targetLanguage,
+          timestamp: new Date().toISOString(),
+          confidence: 1.0 // High confidence since it's based on UI language
+        });
+      } else {
+        console.log(`📝 Language remains ${conversation.language}`);
       }
 
       // Add user message to conversation with language info
@@ -94,8 +105,8 @@ class ConversationService {
         content: message,
         timestamp: new Date().toISOString(),
         audioData: audioData || null,
-        detectedLanguage: languageDetection.detectedLanguage,
-        languageConfidence: languageDetection.confidence
+        detectedLanguage: targetLanguage,
+        languageConfidence: 1.0
       };
       conversation.messages.push(userMessage);
 
@@ -132,8 +143,8 @@ class ConversationService {
         language: aiMessage.language,
         culturalContext: aiMessage.culturalContext,
         languageDetection: {
-          detected: languageDetection.detectedLanguage,
-          confidence: languageDetection.confidence,
+          detected: targetLanguage,
+          confidence: 1.0,
           switched: conversation.languageHistory.length > 0
         },
         conversation: conversation
