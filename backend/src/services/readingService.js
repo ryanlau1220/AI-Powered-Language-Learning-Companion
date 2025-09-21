@@ -52,7 +52,7 @@ class ReadingService {
 
   async analyzeContent({ content, contentType, userId, uiLanguage }) {
     try {
-      console.log('Analyzing content for reading practice...');
+      console.log('Analyzing content for Text Explorer Lab...');
       console.log('Content type:', contentType);
       console.log('Content length:', content ? content.length : 0);
       
@@ -63,23 +63,23 @@ class ReadingService {
       if (!uiLanguage) {
         const languageDetection = await languageDetectionService.detectLanguage(content, userId);
         targetLanguage = languageDetection.detectedLanguage;
-        console.log(`🔍 UI language not set, detected language: ${targetLanguage}`);
+        console.log(`UI language not set, detected language: ${targetLanguage}`);
       } else {
-        console.log(`🔍 Using UI language: ${targetLanguage}`);
+        console.log(`Using UI language: ${targetLanguage}`);
       }
       
       // Simple heuristic: if content contains Chinese characters, use Chinese
       const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
       if (chinesePattern.test(content)) {
         targetLanguage = 'zh';
-        console.log(`🔍 Content contains Chinese characters, using Chinese`);
+        console.log(`Content contains Chinese characters, using Chinese`);
       }
       
       const detectedLanguage = targetLanguage;
       const culturalContext = targetLanguage === 'zh' ? 'Chinese' : 'Western';
       
-      console.log(`🔍 Target language: ${detectedLanguage}`);
-      console.log(`🏛️ Cultural context: ${culturalContext}`);
+      console.log(`Target language: ${detectedLanguage}`);
+      console.log(`Cultural context: ${culturalContext}`);
       
       // Build language-specific prompt
       const isChinese = detectedLanguage === 'zh';
@@ -129,7 +129,7 @@ Format your response in clear sections with markdown formatting.`;
       const responseBody = JSON.parse(response.body.toString());
       
       console.log('Bedrock response received');
-      console.log('Response body structure:', JSON.stringify(responseBody, null, 2));
+      // Response received from Bedrock
       
       // Handle different response structures
       let analysisText = '';
@@ -151,23 +151,16 @@ Format your response in clear sections with markdown formatting.`;
       let quiz = null;
       
       try {
-        console.log('Auto-generating flashcards...');
         const flashcardResponse = await this.generateFlashcards({ content: analysisText, userId });
-        console.log('Flashcard response:', flashcardResponse);
         if (flashcardResponse.success) {
           flashcards = flashcardResponse.flashcards || [];
-          console.log('Generated flashcards:', flashcards);
         }
         
-        console.log('Auto-generating quiz...');
         const quizResponse = await this.generateQuiz({ content: analysisText, userId });
-        console.log('Quiz response:', quizResponse);
         if (quizResponse.success) {
           quiz = quizResponse.questions || quizResponse.quiz || null;
-          console.log('Generated quiz:', quiz);
         }
       } catch (error) {
-        console.log('Error auto-generating flashcards/quiz:', error.message);
         // Continue without flashcards/quiz if generation fails
       }
 
@@ -202,7 +195,7 @@ Format your response in clear sections with markdown formatting.`;
       const detectedLanguage = languageDetection.detectedLanguage;
       const culturalContext = languageDetection.culturalContext;
       
-      console.log(`🔍 Flashcard generation - Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
+      // Generating flashcards in detected language
       
       // Build language-specific flashcard prompt
       const isChinese = detectedLanguage === 'zh';
@@ -278,7 +271,7 @@ Format as a JSON array with the following structure:
         };
       }
       
-      console.log('Flashcard response text:', responseText);
+      // Flashcard response received
       
       // Try to parse the JSON response
       let flashcards = [];
@@ -317,13 +310,11 @@ Format as a JSON array with the following structure:
       const detectedLanguage = languageDetection.detectedLanguage;
       const culturalContext = languageDetection.culturalContext;
       
-      console.log(`🔍 Quiz generation - Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
-      console.log(`🏛️ Cultural context: ${culturalContext}`);
+      // Generating quiz in detected language
       
       const timestamp = new Date().toISOString();
       const randomSeed = Math.floor(Math.random() * 1000);
       const questionSet = Math.floor(Math.random() * 4); // 0, 1, 2, or 3
-      console.log('Quiz generation - Timestamp:', timestamp, 'Random seed:', randomSeed, 'Question set:', questionSet);
       
       // Extract key concepts from content for targeted question generation
       const contentLower = content.toLowerCase();
@@ -425,20 +416,20 @@ Format as a JSON array with exactly 5 questions:
       
       // Handle different response structures
       let responseText = '';
-      console.log('Quiz response body structure:', JSON.stringify(responseBody, null, 2));
+      // Quiz response received
       
       if (responseBody.content && responseBody.content[0] && responseBody.content[0].text) {
         responseText = responseBody.content[0].text;
-        console.log('Using content[0].text structure');
+        // Using content structure
       } else if (responseBody.messages && responseBody.messages[0] && responseBody.messages[0].content) {
         responseText = responseBody.messages[0].content[0].text;
-        console.log('Using messages[0].content[0].text structure');
+        // Using messages structure
       } else if (responseBody.text) {
         responseText = responseBody.text;
-        console.log('Using text structure');
+        // Using text structure
       } else if (responseBody.output && responseBody.output.message && responseBody.output.message.content) {
         responseText = responseBody.output.message.content[0].text;
-        console.log('Using output.message.content[0].text structure');
+        // Using output structure
       } else {
         console.log('Unexpected response structure for quiz, using fallback');
         console.log('Available keys:', Object.keys(responseBody));
@@ -452,7 +443,7 @@ Format as a JSON array with exactly 5 questions:
       // Try to parse the JSON response
       let questions = [];
       try {
-        console.log('Quiz response text:', responseText);
+        // Quiz response parsed
         const jsonMatch = responseText.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
           // Clean up the JSON by removing trailing commas

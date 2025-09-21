@@ -10,7 +10,6 @@
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
-    "deploy": "npm run deploy:backend && npm run deploy:frontend",
     "deploy:backend": "cd backend && npm run deploy",
     "deploy:frontend": "cd frontend && npm run deploy",
     "test": "npm run test:frontend && npm run test:backend",

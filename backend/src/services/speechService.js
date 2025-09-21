@@ -68,13 +68,8 @@ class SpeechService {
 
   async transcribeAudio({ audioData, languageCode, userId }) {
     try {
-      console.log('Starting real AWS Transcribe transcription...');
-      console.log('Audio data length:', audioData ? audioData.length : 'undefined');
-      console.log('Audio data starts with:', audioData ? audioData.substring(0, 50) : 'undefined');
-      
       // Convert base64 to buffer
       const audioBuffer = Buffer.from(audioData, 'base64');
-      console.log('Audio buffer size:', audioBuffer.length);
       
       let finalBuffer = audioBuffer;
       let mediaFormat = 'webm';
@@ -83,15 +78,12 @@ class SpeechService {
       
       // Try to convert WebM to WAV for better compatibility
       try {
-        console.log('Converting WebM to WAV...');
         const wavBuffer = await this.convertWebMToWav(audioBuffer);
         finalBuffer = wavBuffer;
         mediaFormat = 'wav';
         contentType = 'audio/wav';
         fileExtension = 'wav';
-        console.log('Successfully converted to WAV');
       } catch (conversionError) {
-        console.log('WebM to WAV conversion failed, using original WebM:', conversionError.message);
         // Continue with original WebM format
       }
       
@@ -335,12 +327,12 @@ class SpeechService {
         // Use Chinese voice for Chinese content
         finalVoiceId = voiceId || 'Zhiyu'; // Chinese voice
         finalLanguageCode = 'cmn-CN'; // Use cmn-CN instead of zh-CN for AWS Polly
-        console.log(`🔊 Detected Chinese content, using Chinese voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
+        console.log(`Detected Chinese content, using Chinese voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
       } else {
         // Use English voice for English content
         finalVoiceId = voiceId || 'Joanna'; // English voice
         finalLanguageCode = 'en-US';
-        console.log(`🔊 Detected English content, using English voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
+        console.log(`Detected English content, using English voice: ${finalVoiceId} with language: ${finalLanguageCode}`);
       }
 
       const params = {

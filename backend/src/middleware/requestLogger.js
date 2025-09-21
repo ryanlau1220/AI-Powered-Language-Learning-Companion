@@ -21,7 +21,7 @@ const requestLogger = (req, res, next) => {
   
   // Only log important requests in development
   if (process.env.NODE_ENV === 'development' && !req.url.includes('/health')) {
-    logger.info(`→ ${req.method} ${req.url}`);
+    logger.info(`-> ${req.method} ${req.url}`);
   }
 
   // Override res.end to log response
@@ -31,7 +31,7 @@ const requestLogger = (req, res, next) => {
     
     // Only log errors and slow requests
     if (res.statusCode >= 400 || duration > 1000) {
-      logger.warn(`← ${req.method} ${req.url} ${res.statusCode} (${duration}ms)`);
+      logger.warn(`<- ${req.method} ${req.url} ${res.statusCode} (${duration}ms)`);
     }
 
     originalEnd.call(this, chunk, encoding);

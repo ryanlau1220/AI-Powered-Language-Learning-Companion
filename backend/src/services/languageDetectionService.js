@@ -4,7 +4,7 @@ require('dotenv').config();
 // Configure AWS Comprehend for language detection
 // Using ap-southeast-1 region for Comprehend
 const comprehendRegion = process.env.AWS_REGION || 'ap-southeast-1';
-console.log('🔍 LanguageDetectionService - Using region:', comprehendRegion);
+console.log('LanguageDetectionService - Using region:', comprehendRegion);
 
 class LanguageDetectionService {
   constructor() {
@@ -39,7 +39,7 @@ class LanguageDetectionService {
       const cacheKey = this.generateCacheKey(text, userId);
       const cached = this.getCachedDetection(cacheKey);
       if (cached) {
-        console.log('📋 Using cached language detection result');
+        console.log('Using cached language detection result');
         return cached;
       }
 
@@ -48,7 +48,7 @@ class LanguageDetectionService {
         return this.getFallbackDetection('en');
       }
 
-      console.log('🔍 Detecting language for text:', text.substring(0, 50) + '...');
+      console.log('Detecting language for text:', text.substring(0, 50) + '...');
 
       // Simple pattern-based detection for testing
       const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
@@ -91,11 +91,11 @@ class LanguageDetectionService {
       };
       
       this.setCachedDetection(cacheKey, detectionResult);
-      console.log('✅ Language detected:', detectionResult);
+      console.log('Language detected:', detectionResult);
       return detectionResult;
 
     } catch (error) {
-      console.error('❌ Error in language detection:', error);
+      console.error('Error in language detection:', error);
       
       // Return fallback detection
       const fallbackResult = this.getFallbackDetection('en');
@@ -112,14 +112,14 @@ class LanguageDetectionService {
    */
   async batchDetectLanguages(texts, userId = null) {
     try {
-      console.log(`🔍 Batch detecting languages for ${texts.length} texts`);
+      console.log(`Batch detecting languages for ${texts.length} texts`);
       
       const promises = texts.map(text => this.detectLanguage(text, userId));
       const results = await Promise.all(promises);
       
       return results;
     } catch (error) {
-      console.error('❌ Error in batch language detection:', error);
+      console.error('Error in batch language detection:', error);
       return texts.map(() => this.getFallbackDetection('en'));
     }
   }
@@ -141,7 +141,7 @@ class LanguageDetectionService {
         lastDetectedLanguage: 'en'
       };
     } catch (error) {
-      console.error('❌ Error getting user language preferences:', error);
+      console.error('Error getting user language preferences:', error);
       return {
         primaryLanguage: 'en',
         secondaryLanguage: 'zh',
@@ -352,7 +352,7 @@ class LanguageDetectionService {
       };
 
     } catch (error) {
-      console.error('❌ Error in sentiment analysis:', error);
+      console.error('Error in sentiment analysis:', error);
       return {
         sentiment: 'NEUTRAL',
         confidence: 0.5,

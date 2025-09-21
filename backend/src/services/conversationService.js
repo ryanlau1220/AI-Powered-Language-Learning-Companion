@@ -50,7 +50,7 @@ class ConversationService {
       // Store conversation in memory
       this.conversations.set(conversationId, conversation);
 
-      console.log(`✅ Started conversation ${conversationId} in ${detectedLanguage} with ${culturalContext} cultural context`);
+      // Conversation started
       return conversation;
     } catch (error) {
       console.error('Error starting conversation:', error);
@@ -69,22 +69,16 @@ class ConversationService {
       // Use UI language as the primary indicator - respect user's choice
       let targetLanguage = uiLanguage || 'en';
       
-      // Only override if UI language is not explicitly set and message contains Chinese characters
-      if (!uiLanguage) {
-        const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
-        if (chinesePattern.test(message)) {
-          targetLanguage = 'zh';
-          console.log(`🔍 UI language not set, message contains Chinese characters, using Chinese`);
-        } else {
-          console.log(`🔍 UI language not set, using default English`);
+        // Only override if UI language is not explicitly set and message contains Chinese characters
+        if (!uiLanguage) {
+          const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
+          if (chinesePattern.test(message)) {
+            targetLanguage = 'zh';
+          }
         }
-      } else {
-        console.log(`🔍 Using UI language: ${targetLanguage}`);
-      }
 
       // Update conversation language if different
       if (targetLanguage !== conversation.language) {
-        console.log(`🔄 Language switched from ${conversation.language} to ${targetLanguage}`);
         conversation.language = targetLanguage;
         conversation.culturalContext = targetLanguage === 'zh' ? 'Chinese' : 'Western';
         
@@ -95,8 +89,6 @@ class ConversationService {
           timestamp: new Date().toISOString(),
           confidence: 1.0 // High confidence since it's based on UI language
         });
-      } else {
-        console.log(`📝 Language remains ${conversation.language}`);
       }
 
       // Add user message to conversation with language info

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://zkr9kgcmpu.ap-southeast-1.awsapprunner.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -39,8 +39,6 @@ export const apiService = {
   getPronunciationFeedback: (feedbackData: any) => api.post('/api/speech/pronunciation-feedback', feedbackData),
   analyzePronunciation: (pronunciationData: any) => api.post('/api/speech/analyze-pronunciation', pronunciationData, { timeout: 60000 }), // 60 seconds for pronunciation analysis
 
-  // Writing services
-  analyzeWriting: (writingData: any) => api.post('/api/writing/analyze', writingData),
 
   // Reading services
   analyzeContent: (formData: FormData) => api.post('/api/reading/analyze', formData, {

@@ -18,7 +18,7 @@ class TranslationService {
    */
   async translateText(text, targetLanguage, sourceLanguage = 'auto') {
     try {
-      console.log(`🔄 Translating text: "${text.substring(0, 50)}..." from ${sourceLanguage} to ${targetLanguage}`);
+      console.log(`Translating text: "${text.substring(0, 50)}..." from ${sourceLanguage} to ${targetLanguage}`);
 
       // Skip translation if source and target are the same
       if (sourceLanguage === targetLanguage || (sourceLanguage === 'auto' && targetLanguage === 'en')) {
@@ -35,7 +35,7 @@ class TranslationService {
       if (sourceLanguage === 'auto') {
         const detection = await languageDetectionService.detectLanguage(text);
         sourceLanguage = detection.detectedLanguage;
-        console.log(`🔍 Auto-detected source language: ${sourceLanguage}`);
+        console.log(`Auto-detected source language: ${sourceLanguage}`);
       }
 
       // Skip translation if detected source is same as target
@@ -75,7 +75,7 @@ class TranslationService {
       const fallbackTranslation = this.getFallbackTranslation(text, targetLanguage);
       
       if (fallbackTranslation) {
-        console.log(`🔄 Using fallback translation`);
+        console.log(`Using fallback translation`);
         return {
           success: true,
           translatedText: fallbackTranslation,

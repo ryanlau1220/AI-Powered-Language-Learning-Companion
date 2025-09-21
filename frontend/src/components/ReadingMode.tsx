@@ -164,7 +164,7 @@ const ReadingMode: React.FC<ReadingModeProps> = ({ onBack }) => {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Reading Practice</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Text Explorer Lab</h2>
           <p className="text-gray-600">Improve your reading comprehension with AI-generated content.</p>
         </div>
         <button onClick={onBack} className="btn-secondary">

@@ -15,7 +15,8 @@
     "react-markdown": "^10.1.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.8.1",
-    "tailwind-merge": "^2.0.0"
+    "tailwind-merge": "^2.0.0",
+    "terser": "^5.44.0"
   },
   "devDependencies": {
     "@types/graceful-fs": "^4.1.9",

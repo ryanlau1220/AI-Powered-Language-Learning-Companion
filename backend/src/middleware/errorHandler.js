@@ -16,7 +16,7 @@ const logger = winston.createLogger({
 
 const errorHandler = (err, req, res, next) => {
   // Clean error logging
-  logger.error(`❌ ${err.message}`, {
+  logger.error(`Error: ${err.message}`, {
     url: req.url,
     method: req.method,
     status: err.status || 500

@@ -198,14 +198,14 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       {
         id: 'speaking-1',
         type: 'speaking',
-        title: 'Speaking Practice',
+        title: 'Voice Mastery Hub',
         description: 'Practice pronunciation and conversation',
         isActive: false
       },
       {
         id: 'reading-1',
         type: 'reading',
-        title: 'Reading Practice',
+        title: 'Text Explorer Lab',
         description: 'Improve reading comprehension',
         content: 'Read engaging passages and test your understanding',
         isActive: false
@@ -289,7 +289,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       
       // Handle based on current mode
       if (currentMode === 'reading') {
-        // For reading practice, set the transcription as the reading prompt
+        // For Text Explorer Lab, set the transcription as the reading prompt
         setReadingPrompt(transcribedText)
         // Auto-analyze the content
         await generateReadingFromPrompt()
@@ -713,7 +713,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
 
       const promptMessage = {
         type: 'ai' as const,
-        content: `🎤 **${translate('aiTutorRoom.speakingPracticeReady', 'Speaking Practice Ready!')}**\n\nI've prepared a speaking exercise for you:\n\n**"${speakingPrompt}"**\n\n**${translate('aiTutorRoom.speakingInstructions', 'Instructions:')}**\n1. ${translate('aiTutorRoom.speakingInstruction1', 'Click "Start Recording" when you\'re ready')}\n2. ${translate('aiTutorRoom.speakingInstruction2', 'Speak clearly and naturally')}\n3. ${translate('aiTutorRoom.speakingInstruction3', 'Click "Stop Recording" when finished')}\n4. ${translate('aiTutorRoom.speakingInstruction4', 'I\'ll provide pronunciation feedback')}\n\n${translate('aiTutorRoom.speakingConfidence', 'Take your time and speak with confidence!')}`,
+        content: `🎤 **${translate('aiTutorRoom.speakingPracticeReady', 'Voice Mastry Hub Ready!')}**\n\nI've prepared a speaking exercise for you:\n\n**"${speakingPrompt}"**\n\n**${translate('aiTutorRoom.speakingInstructions', 'Instructions:')}**\n1. ${translate('aiTutorRoom.speakingInstruction1', 'Click "Start Recording" when you\'re ready')}\n2. ${translate('aiTutorRoom.speakingInstruction2', 'Speak clearly and naturally')}\n3. ${translate('aiTutorRoom.speakingInstruction3', 'Click "Stop Recording" when finished')}\n4. ${translate('aiTutorRoom.speakingInstruction4', 'I\'ll provide pronunciation feedback')}\n\n${translate('aiTutorRoom.speakingConfidence', 'Take your time and speak with confidence!')}`,
         timestamp: new Date()
       }
       setConversationHistory(prev => [...prev, promptMessage])
@@ -955,7 +955,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       setCurrentMode('speaking')
       updateActiveCard('speaking')
       
-      // Start with default speaking practice
+      // Start with default Voice Mastry Hub
       const prompt = `I want to practice ${card.type}. ${card.description}`
       processTextInput(prompt)
     } else if (card.type === 'reading') {
@@ -1561,15 +1561,15 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {/* Reading Practice - File Upload and Text Input */}
+              {/* Text Explorer Lab - File Upload and Text Input */}
               {currentMode === 'reading' && (
                 <div className="mb-6 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                       <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <h4 className="text-xl font-semibold text-purple-800 mb-2">{translate('aiTutorRoom.interfaceTitles.readingPractice', 'Reading Practice')}</h4>
-                    <p className="text-purple-600 mb-6">{translate('aiTutorRoom.interfaceTitles.readingInstructions', "Upload a file or provide text to start your reading practice")}</p>
+                    <h4 className="text-xl font-semibold text-purple-800 mb-2">{translate('aiTutorRoom.interfaceTitles.readingPractice', 'Text Explorer Lab')}</h4>
+                    <p className="text-purple-600 mb-6">{translate('aiTutorRoom.interfaceTitles.readingInstructions', "Upload a file or provide text to start your Text Explorer Lab")}</p>
                     
                     {/* File Upload */}
                     <div className="mb-4">
@@ -1725,7 +1725,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
               {/* Speaking Prompt Input - Only show in speaking mode */}
               {currentMode === 'speaking' && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
-                  <h4 className="text-lg font-semibold text-indigo-800 mb-3">{translate('aiTutorRoom.customSpeakingPractice', 'Custom Speaking Practice')}</h4>
+                  <h4 className="text-lg font-semibold text-indigo-800 mb-3">{translate('aiTutorRoom.customSpeakingPractice', 'Custom Voice Mastry Hub')}</h4>
                   <div className="flex gap-2">
                     <input
                       type="text"

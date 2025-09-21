@@ -3,8 +3,7 @@ require('dotenv').config();
 
 // Configure Bedrock for US East region (N. Virginia)
 const usEastRegion = process.env.BEDROCK_REGION || 'us-east-1';
-console.log('🔍 BedrockService - BEDROCK_REGION from env:', process.env.BEDROCK_REGION);
-console.log('🔍 BedrockService - Using region:', usEastRegion);
+// BedrockService configured with region: us-east-1
 
 // Configure AWS with explicit credentials
 AWS.config.update({
@@ -20,12 +19,8 @@ class BedrockService {
   }
 
   async generateInitialResponse({ scenario, language, proficiencyLevel, culturalContext }) {
-    console.log('🚀 generateInitialResponse called with:', { scenario, language, proficiencyLevel, culturalContext });
-    console.log('🔍 BEDROCK_MODEL_ID from env:', process.env.BEDROCK_MODEL_ID);
-    
     try {
       const prompt = this.buildInitialPrompt({ scenario, language, proficiencyLevel, culturalContext });
-      console.log('📝 Generated prompt:', prompt.substring(0, 100) + '...');
       
       const response = await this.invokeModel(prompt);
       
@@ -584,7 +579,7 @@ Format as JSON with:
     try {
       const data = JSON.parse(response.text);
       return {
-        title: data.title || 'Reading Practice',
+        title: data.title || 'Text Explorer Lab',
         content: data.content || 'Sample reading content...',
         level: data.level || 'intermediate',
         wordCount: data.wordCount || 250,

@@ -2,9 +2,8 @@
   "navigation": {
     "home": "首页",
     "conversation": "对话练习",
-    "reading": "阅读练习",
-    "speaking": "口语练习",
-    "writing": "写作练习",
+    "reading": "文本探索",
+    "speaking": "语音大师",
     "aiTutor": "AI导师室"
   },
   "common": {
@@ -35,17 +34,13 @@
         "description": "与我们的AI导师进行自然对话练习"
       },
       "reading": {
-        "title": "阅读练习",
-        "description": "通过AI生成的内容和分析提高阅读技能"
+        "title": "文本探索",
+        "description": "通过智能分析探索文本并提升理解能力"
       },
       "speaking": {
-        "title": "口语练习",
-        "description": "通过实时反馈完善您的发音"
+        "title": "语音大师",
+        "description": "通过AI智能反馈掌握发音和对话技巧"
       },
-      "writing": {
-        "title": "写作练习",
-        "description": "通过AI驱动的语法和风格分析提升写作技能"
-      }
     }
   },
   "conversation": {
@@ -114,26 +109,16 @@
     "comprehension": "理解力",
     "accuracy": "准确度"
   },
-  "writing": {
-    "title": "写作练习",
-    "subtitle": "通过AI辅助提升写作能力",
-    "inputPlaceholder": "在这里输入您的文本...",
-    "analyze": "分析写作",
-    "grammarCheck": "语法检查",
-    "styleSuggestion": "风格建议",
-    "wordCount": "字数统计"
-  },
   "aiTutor": {
     "title": "AI导师室",
-    "subtitle": "进入沉浸式学习环境，在这里口语、阅读、写作和听力无缝集成到一个智能对话体验中。",
+    "subtitle": "进入沉浸式学习环境，在这里口语和阅读无缝集成到一个智能对话体验中。",
     "uploadFile": "上传文件",
     "generateContent": "生成内容",
     "selectMode": "选择学习模式",
     "modes": {
       "conversation": "对话",
       "reading": "阅读",
-      "speaking": "口语",
-      "writing": "写作"
+      "speaking": "口语"
     },
     "tutorName": "AI导师",
     "interactiveTools": "互动学习工具：",
@@ -173,17 +158,14 @@
         "description": "与我们的AI导师进行自然对话练习"
       },
       "reading": {
-        "title": "阅读练习",
-        "description": "通过AI生成的内容和分析提高阅读技能"
+        "title": "文本探索",
+        "description": "通过智能分析探索文本并提升理解能力"
       },
       "speaking": {
-        "title": "口语练习",
-        "description": "通过实时反馈完善您的发音"
+        "title": "语音大师",
+        "description": "通过AI智能反馈掌握发音和对话技巧"
       },
-      "writing": {
-        "title": "写作练习",
-        "description": "通过AI驱动的语法和风格分析提升写作技能"
-      },
+,
       "listening": {
         "title": "听力练习",
         "description": "通过情境音频内容提高听力技能"
@@ -225,11 +207,11 @@
     "whatWouldYouLike": "你想先做什么？",
             "learningCards": {
               "speaking": {
-                "title": "语音大师工作室",
+                "title": "语音大师",
                 "description": "通过AI智能反馈掌握发音和对话技巧"
               },
               "reading": {
-                "title": "文本探索实验室",
+                "title": "文本探索",
                 "description": "通过智能分析探索文本并提升理解能力"
               }
             },
@@ -240,17 +222,17 @@
       "analyze": "分析"
     },
     "aiMessages": {
-      "welcomeMessage": "你好！我是你的AI语言学习导师。我在这里帮助你掌握语音大师工作室和探索文本探索实验室。你今天想练习什么？",
+      "welcomeMessage": "你好！我是你的AI语言学习导师。我在这里帮助你掌握语音大师和探索文本探索。你今天想练习什么？",
       "speakingChallengeIntro": "太好了！让我们来练习你的口语技能。这是你的挑战：",
       "speakingChallengeInstructions": "慢慢来，清晰地说话。我将对你的发音和流利度提供反馈。"
     },
     "buttonLabels": {
-      "speakingPractice": "语音大师工作室",
-      "readingPractice": "文本探索实验室"
+      "speakingPractice": "语音大师",
+      "readingPractice": "文本探索"
     },
     "textInputPlaceholder": "在这里输入您的消息...",
     "interfaceTitles": {
-      "readingPractice": "文本探索实验室",
+      "readingPractice": "文本探索",
       "readingInstructions": "上传文件或提供文本来开始你的文本探索"
     },
     "speakingProgress": {

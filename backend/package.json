@@ -5,14 +5,17 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon --quiet src/index.js",
-    "build": "npm run build:lambda",
-    "build:lambda": "zip -r lambda-deployment.zip . -x node_modules/.bin/* *.zip",
-    "deploy": "npx serverless deploy",
+    "start": "node src/index.js",
+    "deploy:apprunner": "powershell -ExecutionPolicy Bypass -File scripts/deploy-apprunner.ps1",
+    "deploy:apprunner:prod": "powershell -ExecutionPolicy Bypass -File scripts/deploy-apprunner.ps1 prod",
+    "deploy:apprunner:staging": "powershell -ExecutionPolicy Bypass -File scripts/deploy-apprunner.ps1 staging",
+    "setup:apprunner": "powershell -ExecutionPolicy Bypass -File scripts/setup-apprunner.ps1",
+    "docker:build": "docker build -t ai-language-learning-backend .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env ai-language-learning-backend",
     "test": "jest",
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@codegenie/serverless-express": "^4.12.6",
     "aws-sdk": "^2.1490.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -30,8 +33,6 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
-    "serverless": "^3.38.0",
-    "serverless-offline": "^13.3.0",
     "supertest": "^6.3.3"
   },
   "engines": {

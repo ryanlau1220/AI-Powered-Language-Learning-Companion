@@ -7,8 +7,8 @@ Complete AI-powered language learning platform with real-time conversation, pron
 # Setup
 cp env.example .env
 npm install
-cd backend ; npm install
-cd ../frontend ; npm install
+cd backend; npm install
+cd ../frontend; npm install
 
 # AWS Services Setup
 npm run setup-db    # Create DynamoDB tables
@@ -30,8 +30,8 @@ npm run test-roleplay          # Test role-playing scenarios
 
 # Deployment
 npm run deploy                 # Deploy complete system
-cd backend ; npm run deploy  # Backend only
-cd frontend ; npm run build  # Frontend build
+cd backend; npm run deploy  # Backend only
+cd frontend; npm run build  # Frontend build
 aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 ```
 
@@ -59,7 +59,7 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 │   │   ├── handlers/         # API route handlers
 │   │   │   ├── conversation.js  # Conversation management
 │   │   │   ├── language.js      # Language detection & translation
-│   │   │   ├── reading.js       # Reading practice features
+│   │   │   ├── reading.js       # Text Explorer Lab features
 │   │   │   ├── speech.js        # Speech processing
 │   │   │   └── writing.js       # Writing practice
 │   │   ├── services/         # AI service integrations
@@ -85,8 +85,8 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 │   │   │   ├── LanguageIndicator.tsx      # Language detection UI
 │   │   │   ├── LanguageSwitcher.tsx       # Language selection
 │   │   │   ├── Layout.tsx                 # Main layout
-│   │   │   ├── ReadingMode.tsx            # Reading practice
-│   │   │   └── SpeakingMode.tsx           # Speaking practice
+│   │   │   ├── ReadingMode.tsx            # Text Explorer Lab
+│   │   │   └── SpeakingMode.tsx           # Voice Mastry Hub
 │   │   ├── pages/            # Page components
 │   │   │   ├── HomePage.tsx           # Landing page
 │   │   │   └── ConversationPage.tsx   # Conversation practice
@@ -115,8 +115,8 @@ aws s3 sync dist/ s3://your-bucket-name --delete  # Deploy frontend to S3
 - **AI Tutor Room**: Comprehensive learning interface with multiple practice modes
 - **Real-time Conversations**: AI-powered chat with Amazon Bedrock
 - **Speech Processing**: Voice input/output with Transcribe and Polly
-- **Reading Practice**: AI-generated content with analysis, quizzes, and flashcards
-- **Speaking Practice**: Pronunciation feedback and speaking challenges
+- **Text Explorer Lab**: AI-generated content with analysis, quizzes, and flashcards
+- **Voice Mastry Hub**: Pronunciation feedback and speaking challenges
 - **Writing Practice**: Grammar correction and style analysis with Bedrock
 - **Interactive Learning**: Flashcards, quizzes, and comprehension questions
 
@@ -168,8 +168,8 @@ flowchart TD
     C --> D{Choose Learning Mode}
     
     D -->|Conversation| E[AI Chat with Bedrock]
-    D -->|Speaking Practice| F[Audio Recording & Analysis]
-    D -->|Reading Practice| G[Content Generation & Analysis]
+    D -->|Voice Mastry Hub| F[Audio Recording & Analysis]
+    D -->|Text Explorer Lab| G[Content Generation & Analysis]
     D -->|Writing Practice| H[Grammar & Style Analysis]
     
     E --> I[Language-Aware Response]

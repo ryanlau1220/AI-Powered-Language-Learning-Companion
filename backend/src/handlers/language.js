@@ -12,18 +12,18 @@ const { authenticateUser } = require('../middleware/auth');
  */
 router.post('/detect', validateLanguageDetection, async (req, res) => {
   try {
-    console.log('🔍 Language detection request received');
+    console.log('Language detection request received');
     
     const { text, userId } = req.body;
     const requestingUserId = userId || 'anonymous';
 
-    console.log(`🔍 Language detection request from user: ${requestingUserId}`);
+    console.log(`Language detection request from user: ${requestingUserId}`);
     
     // Detect language
     const detectionResult = await languageDetectionService.detectLanguage(text, requestingUserId);
     
     // Log successful detection
-    console.log(`✅ Language detected: ${detectionResult.detectedLanguage} (confidence: ${detectionResult.confidence})`);
+    console.log(`Language detected: ${detectionResult.detectedLanguage} (confidence: ${detectionResult.confidence})`);
     
     res.status(200).json({
       success: true,
@@ -32,7 +32,7 @@ router.post('/detect', validateLanguageDetection, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Language detection error:', error);
+    console.error('Language detection error:', error);
     
     res.status(500).json({
       success: false,
@@ -49,7 +49,6 @@ router.post('/detect', validateLanguageDetection, async (req, res) => {
  */
 router.post('/batch-detect', authenticateUser, async (req, res) => {
   try {
-    logRequest(req, 'Batch Language Detection');
     
     const { texts, userId } = req.body;
     const requestingUserId = req.user?.id || userId;
@@ -70,7 +69,7 @@ router.post('/batch-detect', authenticateUser, async (req, res) => {
       });
     }
 
-    console.log(`🔍 Batch language detection for ${texts.length} texts from user: ${requestingUserId}`);
+    console.log(`Batch language detection for ${texts.length} texts from user: ${requestingUserId}`);
     
     // Detect languages for all texts
     const detectionResults = await languageDetectionService.batchDetectLanguages(texts, requestingUserId);
@@ -87,7 +86,7 @@ router.post('/batch-detect', authenticateUser, async (req, res) => {
 
     const averageConfidence = totalConfidence / detectionResults.length;
     
-    console.log(`✅ Batch detection completed. Languages found:`, languageCounts);
+    console.log(`Batch detection completed. Languages found:`, languageCounts);
     
     res.status(200).json({
       success: true,
@@ -106,8 +105,7 @@ router.post('/batch-detect', authenticateUser, async (req, res) => {
     });
 
   } catch (error) {
-    logError(req, error, 'Batch Language Detection Error');
-    console.error('❌ Batch language detection error:', error);
+    console.error('Batch language detection error:', error);
     
     res.status(500).json({
       success: false,
@@ -124,7 +122,6 @@ router.post('/batch-detect', authenticateUser, async (req, res) => {
  */
 router.get('/supported', async (req, res) => {
   try {
-    logRequest(req, 'Get Supported Languages');
     
     const supportedLanguages = languageDetectionService.getSupportedLanguages();
     
@@ -138,8 +135,7 @@ router.get('/supported', async (req, res) => {
     });
 
   } catch (error) {
-    logError(req, error, 'Get Supported Languages Error');
-    console.error('❌ Get supported languages error:', error);
+    console.error('Get supported languages error:', error);
     
     res.status(500).json({
       success: false,
@@ -156,7 +152,6 @@ router.get('/supported', async (req, res) => {
  */
 router.get('/preferences/:userId', authenticateUser, async (req, res) => {
   try {
-    logRequest(req, 'Get User Language Preferences');
     
     const { userId } = req.params;
     const requestingUserId = req.user?.id;
@@ -179,7 +174,6 @@ router.get('/preferences/:userId', authenticateUser, async (req, res) => {
     });
 
   } catch (error) {
-    logError(req, error, 'Get User Language Preferences Error');
     console.error('❌ Get user language preferences error:', error);
     
     res.status(500).json({
@@ -197,7 +191,6 @@ router.get('/preferences/:userId', authenticateUser, async (req, res) => {
  */
 router.put('/preferences/:userId', authenticateUser, async (req, res) => {
   try {
-    logRequest(req, 'Update User Language Preferences');
     
     const { userId } = req.params;
     const requestingUserId = req.user?.id;
@@ -248,7 +241,6 @@ router.put('/preferences/:userId', authenticateUser, async (req, res) => {
     });
 
   } catch (error) {
-    logError(req, error, 'Update User Language Preferences Error');
     console.error('❌ Update user language preferences error:', error);
     
     res.status(500).json({
@@ -266,7 +258,6 @@ router.put('/preferences/:userId', authenticateUser, async (req, res) => {
  */
 router.post('/sentiment', authenticateUser, async (req, res) => {
   try {
-    logRequest(req, 'Sentiment Analysis');
     
     const { text, languageCode } = req.body;
     const requestingUserId = req.user?.id;
@@ -288,7 +279,7 @@ router.post('/sentiment', authenticateUser, async (req, res) => {
       });
     }
 
-    console.log(`🔍 Sentiment analysis for ${languageCode} text from user: ${requestingUserId}`);
+    console.log(`Sentiment analysis for ${languageCode} text from user: ${requestingUserId}`);
     
     // Analyze sentiment
     const sentimentResult = await languageDetectionService.analyzeSentiment(text, languageCode);
@@ -302,7 +293,6 @@ router.post('/sentiment', authenticateUser, async (req, res) => {
     });
 
   } catch (error) {
-    logError(req, error, 'Sentiment Analysis Error');
     console.error('❌ Sentiment analysis error:', error);
     
     res.status(500).json({
@@ -356,7 +346,7 @@ router.get('/health', async (req, res) => {
  */
 router.post('/translate', async (req, res) => {
   try {
-    console.log('🔄 Translation request received');
+    console.log('Translation request received');
     
     const { text, targetLanguage, sourceLanguage = 'auto' } = req.body;
 
@@ -368,7 +358,7 @@ router.post('/translate', async (req, res) => {
       });
     }
 
-    console.log(`🔄 Translating: "${text.substring(0, 50)}..." from ${sourceLanguage} to ${targetLanguage}`);
+    console.log(`Translating: "${text.substring(0, 50)}..." from ${sourceLanguage} to ${targetLanguage}`);
     
     // Translate text
     const translationResult = await translationService.translateText(text, targetLanguage, sourceLanguage);

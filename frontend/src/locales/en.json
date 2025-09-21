@@ -2,9 +2,8 @@
   "navigation": {
     "home": "Home",
     "conversation": "Conversation",
-    "reading": "Reading Practice",
-    "speaking": "Speaking Practice",
-    "writing": "Writing Practice",
+    "reading": "Text Explorer Lab",
+    "speaking": "Voice Mastry Hub",
     "aiTutor": "AI Tutor Room"
   },
   "common": {
@@ -35,17 +34,13 @@
         "description": "Practice speaking with our AI tutor in natural conversations"
       },
       "reading": {
-        "title": "Reading Practice", 
+        "title": "Text Explorer Lab", 
         "description": "Improve your reading skills with AI-generated content and analysis"
       },
       "speaking": {
-        "title": "Speaking Practice",
+        "title": "Voice Mastry Hub",
         "description": "Perfect your pronunciation with real-time feedback"
       },
-      "writing": {
-        "title": "Writing Practice",
-        "description": "Enhance your writing skills with AI-powered grammar and style analysis"
-      }
     }
   },
   "conversation": {
@@ -60,7 +55,7 @@
     "culturalContext": "Cultural context"
   },
   "reading": {
-    "title": "Reading Practice",
+    "title": "Text Explorer Lab",
     "subtitle": "Upload content or generate reading materials",
     "uploadFile": "Upload File",
     "generateContent": "Generate Content",
@@ -90,7 +85,7 @@
     }
   },
   "speaking": {
-    "title": "Speaking Practice",
+    "title": "Voice Mastry Hub",
     "subtitle": "Practice pronunciation with AI feedback",
     "startRecording": "Start Recording",
     "stopRecording": "Stop Recording",
@@ -114,26 +109,16 @@
     "comprehension": "Comprehension",
     "accuracy": "Accuracy"
   },
-  "writing": {
-    "title": "Writing Practice",
-    "subtitle": "Improve your writing with AI assistance",
-    "inputPlaceholder": "Write your text here...",
-    "analyze": "Analyze Writing",
-    "grammarCheck": "Grammar Check",
-    "styleSuggestion": "Style Suggestions",
-    "wordCount": "Word Count"
-  },
   "aiTutor": {
     "title": "AI Tutor Room",
-    "subtitle": "Enter the immersive learning environment where speaking, reading, writing, and listening are seamlessly integrated into one intelligent conversation experience.",
+    "subtitle": "Enter the immersive learning environment where speaking and reading are seamlessly integrated into one intelligent conversation experience.",
     "uploadFile": "Upload File",
     "generateContent": "Generate Content",
     "selectMode": "Select Learning Mode",
     "modes": {
       "conversation": "Conversation",
       "reading": "Reading",
-      "speaking": "Speaking",
-      "writing": "Writing"
+      "speaking": "Speaking"
     },
     "tutorName": "AI Tutor",
     "interactiveTools": "Interactive Learning Tools:",
@@ -174,16 +159,12 @@
         "description": "Practice natural conversations with our AI tutor"
       },
       "reading": {
-        "title": "Reading Practice",
-        "description": "Improve reading skills with AI-generated content and analysis"
+        "title": "Text Explorer Lab",
+        "description": "Explore texts and enhance comprehension with intelligent analysis"
       },
       "speaking": {
-        "title": "Speaking Practice",
-        "description": "Refine your pronunciation with real-time feedback"
-      },
-      "writing": {
-        "title": "Writing Practice",
-        "description": "Enhance writing skills with AI-driven grammar and style analysis"
+        "title": "Voice Mastery Hub",
+        "description": "Master pronunciation and conversation skills with AI-powered feedback"
       },
       "listening": {
         "title": "Listening Practice",
@@ -197,7 +178,7 @@
     "learningProgress": "Learning Progress",
     "speakingChallenges": "Speaking Challenges",
     "chooseTopic": "Choose a topic to practice",
-    "customSpeakingPractice": "Custom Speaking Practice",
+    "customSpeakingPractice": "Custom Voice Mastry Hub",
     "generate": "Generate",
     "startRecording": "Start Recording",
     "stopRecording": "Stop Recording",
@@ -206,7 +187,7 @@
     "processing": "Processing...",
     "liveSpeech": "Live Speech:",
     "listening": "Listening...",
-    "speakingPracticeReady": "Speaking Practice Ready!",
+    "speakingPracticeReady": "Voice Mastry Hub Ready!",
     "speakingInstructions": "Instructions:",
     "speakingInstruction1": "Click \"Start Recording\" when you're ready",
     "speakingInstruction2": "Speak clearly and naturally",

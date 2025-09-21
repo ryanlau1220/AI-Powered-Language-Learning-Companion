@@ -545,7 +545,7 @@ class UserService {
           id: '1',
           title: 'First Steps',
           description: 'Complete your first lesson',
-          icon: '🎯',
+          icon: 'target',
           earned: conversations.length > 0,
           earnedDate: conversations.length > 0 ? conversations[conversations.length - 1].createdAt : null
         },
@@ -553,7 +553,7 @@ class UserService {
           id: '2',
           title: 'Week Warrior',
           description: 'Practice for 7 consecutive days',
-          icon: '🔥',
+          icon: 'fire',
           earned: user.progress.learningStreak >= 7,
           earnedDate: user.progress.learningStreak >= 7 ? new Date().toISOString() : null
         },
@@ -561,7 +561,7 @@ class UserService {
           id: '3',
           title: 'Grammar Master',
           description: 'Achieve 90% accuracy in writing exercises',
-          icon: '📝',
+          icon: 'note',
           earned: user.progress.averageGrammarScore >= 90,
           progress: Math.min(100, user.progress.averageGrammarScore),
           maxProgress: 90
@@ -570,7 +570,7 @@ class UserService {
           id: '4',
           title: 'Speaking Star',
           description: 'Complete 50 speaking exercises',
-          icon: '🎤',
+          icon: 'mic',
           earned: conversations.filter(conv => conv.metadata?.skillType === 'speaking').length >= 50,
           progress: Math.min(50, conversations.filter(conv => conv.metadata?.skillType === 'speaking').length),
           maxProgress: 50
@@ -579,7 +579,7 @@ class UserService {
           id: '5',
           title: 'Reading Champion',
           description: 'Read 100 articles',
-          icon: '📚',
+          icon: 'book',
           earned: conversations.filter(conv => conv.metadata?.skillType === 'reading').length >= 100,
           progress: Math.min(100, conversations.filter(conv => conv.metadata?.skillType === 'reading').length),
           maxProgress: 100

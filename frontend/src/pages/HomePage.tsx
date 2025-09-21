@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Sparkles, BookOpen, Mic, Headphones, PenTool, MessageCircle } from 'lucide-react'
+import { Sparkles, BookOpen, Mic, MessageCircle } from 'lucide-react'
 import AITutorRoom from '../components/AITutorRoom'
 import SpeakingMode from '../components/SpeakingMode'
 import ReadingMode from '../components/ReadingMode'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const HomePage: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'home' | 'tutor-room' | 'speaking' | 'reading' | 'writing' | 'listening'>('home')
+  const [currentView, setCurrentView] = useState<'home' | 'tutor-room' | 'speaking' | 'reading'>('home')
   const { translate } = useLanguage()
 
   const features = [
@@ -21,39 +21,25 @@ const HomePage: React.FC = () => {
     },
     {
       icon: Mic,
-      title: translate('speaking.title', 'Speaking Practice'),
-      description: translate('speaking.subtitle', 'Practice pronunciation and conversation with real-time feedback.'),
+      title: translate('speaking.title', 'Voice Mastery Hub'),
+      description: translate('speaking.subtitle', 'Master pronunciation and conversation skills with AI-powered feedback.'),
       view: 'speaking' as const,
       color: 'bg-orange-500',
-      hoverColor: 'hover:bg-orange-600'
-    },
-    {
-      icon: Headphones,
-      title: translate('listening.title', 'Listening Practice'),
-      description: translate('listening.subtitle', 'Improve listening skills with contextual audio content.'),
-      view: 'listening' as const,
-      color: 'bg-blue-500',
-      hoverColor: 'hover:bg-blue-600'
+      hoverColor: 'hover:bg-orange-600',
+      clickable: false
     },
     {
       icon: BookOpen,
-      title: translate('reading.title', 'Reading Practice'),
-      description: translate('reading.subtitle', 'Enhance reading comprehension with AI-generated content.'),
+      title: translate('reading.title', 'Text Explorer Lab'),
+      description: translate('reading.subtitle', 'Explore texts and enhance comprehension with intelligent analysis.'),
       view: 'reading' as const,
       color: 'bg-purple-500',
-      hoverColor: 'hover:bg-purple-600'
+      hoverColor: 'hover:bg-purple-600',
+      clickable: false
     },
-    {
-      icon: PenTool,
-      title: translate('writing.title', 'Writing Practice'),
-      description: translate('writing.subtitle', 'Develop writing skills with grammar and style feedback.'),
-      view: 'writing' as const,
-      color: 'bg-green-500',
-      hoverColor: 'hover:bg-green-600'
-    }
   ]
 
-  const handleFeatureClick = (view: 'tutor-room' | 'speaking' | 'reading' | 'writing' | 'listening') => {
+  const handleFeatureClick = (view: 'tutor-room' | 'speaking' | 'reading') => {
     setCurrentView(view)
   }
 
@@ -69,10 +55,6 @@ const HomePage: React.FC = () => {
         return <SpeakingMode onBack={handleBackToHome} />
       case 'reading':
         return <ReadingMode onBack={handleBackToHome} />
-      case 'writing':
-        return <AITutorRoom onBack={handleBackToHome} /> // TODO: Create WritingMode component
-      case 'listening':
-        return <AITutorRoom onBack={handleBackToHome} /> // TODO: Create ListeningMode component
       default:
         return null
     }
@@ -105,20 +87,20 @@ const HomePage: React.FC = () => {
           <h3 className="text-2xl font-semibold text-gray-800 text-center mb-8">
             {translate('homePage.features.integratedModes', 'Integrated Learning Modes')}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {features.slice(1).map((feature, index) => (
               <div
                 key={index}
-                onClick={() => handleFeatureClick('tutor-room')}
-                className={`${feature.color} ${feature.hoverColor} p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl group`}
+                onClick={feature.clickable !== false ? () => handleFeatureClick(feature.view) : undefined}
+                className={`${feature.color} ${feature.clickable !== false ? feature.hoverColor : ''} p-8 rounded-2xl ${feature.clickable !== false ? 'cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl' : 'cursor-default'} group`}
               >
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                    <feature.icon className="w-6 h-6 text-white" />
+                  <div className={`w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4 ${feature.clickable !== false ? 'group-hover:scale-110 transition-transform duration-300' : ''}`}>
+                    <feature.icon className="w-7 h-7 text-white" />
                   </div>
-                  <h4 className="text-lg font-semibold text-white">{feature.title}</h4>
+                  <h4 className="text-xl font-semibold text-white">{feature.title}</h4>
                 </div>
-                <p className="text-white/90 text-sm leading-relaxed">{feature.description}</p>
+                <p className="text-white/90 text-base leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -138,7 +120,7 @@ const HomePage: React.FC = () => {
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-2">{translate('aiTutor.title', 'AI Tutor Room')}</h2>
                   <p className="text-white/90 text-lg max-w-2xl">
-                    {translate('aiTutor.subtitle', 'Enter the immersive learning environment where speaking, reading, writing, and listening are seamlessly integrated into one intelligent conversation experience.')}
+                    {translate('aiTutor.subtitle', 'Enter the immersive learning environment where speaking and reading are seamlessly integrated into one intelligent conversation experience.')}
                   </p>
                 </div>
               </div>

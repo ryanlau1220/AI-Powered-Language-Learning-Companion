@@ -5,7 +5,6 @@ require('dotenv').config();
 
 const conversationRoutes = require('./handlers/conversation');
 const speechRoutes = require('./handlers/speech');
-const writingRoutes = require('./handlers/writing');
 const readingRoutes = require('./handlers/reading');
 const languageRoutes = require('./handlers/language');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -32,7 +31,6 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/conversation', conversationRoutes);
 app.use('/api/speech', speechRoutes);
-app.use('/api/writing', writingRoutes);
 app.use('/api/reading', readingRoutes);
 app.use('/api/language', languageRoutes);
 
@@ -51,28 +49,28 @@ const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
   const server = app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌍 AWS Region: ${process.env.AWS_REGION || 'ap-southeast-1'}`);
-    console.log(`🧠 Bedrock Region: ${process.env.BEDROCK_REGION || 'us-east-1'}`);
+    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`AWS Region: ${process.env.AWS_REGION || 'ap-southeast-1'}`);
+    console.log(`Bedrock Region: ${process.env.BEDROCK_REGION || 'us-east-1'}`);
     console.log('The frontend is running on http://localhost:3001');
   });
 
   // Handle server errors
   server.on('error', (error) => {
-    console.error('❌ Server error:', error.message);
+    console.error('Server error:', error.message);
     process.exit(1);
   });
 
   // Handle uncaught exceptions
   process.on('uncaughtException', (error) => {
-    console.error('❌ Uncaught Exception:', error.message);
+    console.error('Uncaught Exception:', error.message);
     process.exit(1);
   });
 
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ Unhandled Rejection:', reason);
+    console.error('Unhandled Rejection:', reason);
     process.exit(1);
   });
 }
