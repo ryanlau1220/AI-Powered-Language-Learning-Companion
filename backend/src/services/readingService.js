@@ -50,18 +50,35 @@ class ReadingService {
     });
   }
 
-  async analyzeContent({ content, contentType, userId }) {
+  async analyzeContent({ content, contentType, userId, uiLanguage }) {
     try {
       console.log('Analyzing content for reading practice...');
       console.log('Content type:', contentType);
       console.log('Content length:', content ? content.length : 0);
       
-      // Detect language of the content
-      const languageDetection = await languageDetectionService.detectLanguage(content, userId);
-      const detectedLanguage = languageDetection.detectedLanguage;
-      const culturalContext = languageDetection.culturalContext;
+      // Use UI language as primary indicator, with fallback to language detection
+      let targetLanguage = uiLanguage || 'en';
       
-      console.log(`🔍 Detected language: ${detectedLanguage} (${languageDetection.languageName})`);
+      // Only use language detection if UI language is not provided
+      if (!uiLanguage) {
+        const languageDetection = await languageDetectionService.detectLanguage(content, userId);
+        targetLanguage = languageDetection.detectedLanguage;
+        console.log(`🔍 UI language not set, detected language: ${targetLanguage}`);
+      } else {
+        console.log(`🔍 Using UI language: ${targetLanguage}`);
+      }
+      
+      // Simple heuristic: if content contains Chinese characters, use Chinese
+      const chinesePattern = /[\u4e00-\u9fff\u3400-\u4dbf\u20000-\u2a6df\u2a700-\u2b73f\u2b740-\u2b81f\u2b820-\u2ceaf\uf900-\ufaff\u3300-\u33ff]/;
+      if (chinesePattern.test(content)) {
+        targetLanguage = 'zh';
+        console.log(`🔍 Content contains Chinese characters, using Chinese`);
+      }
+      
+      const detectedLanguage = targetLanguage;
+      const culturalContext = targetLanguage === 'zh' ? 'Chinese' : 'Western';
+      
+      console.log(`🔍 Target language: ${detectedLanguage}`);
       console.log(`🏛️ Cultural context: ${culturalContext}`);
       
       // Build language-specific prompt

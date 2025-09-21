@@ -46,7 +46,8 @@ router.post('/analyze', upload.single('file'), async (req, res) => {
     const result = await readingService.analyzeContent({
       content: content,
       contentType: contentType,
-      userId: req.body.userId || 'default'
+      userId: req.body.userId || 'default',
+      uiLanguage: req.body.uiLanguage
     });
     
     console.log('Content analysis completed');

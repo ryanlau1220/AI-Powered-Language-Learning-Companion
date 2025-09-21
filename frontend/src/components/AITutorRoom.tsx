@@ -276,10 +276,10 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
   const processAudioInput = async (base64Audio: string) => {
     setIsLoading(true)
     try {
-      // Transcribe audio
+      // Transcribe audio with correct language code based on UI language
       const transcriptionResponse = await apiService.transcribeAudio({
         audioData: base64Audio,
-        languageCode: 'en-US'
+        languageCode: uiLanguage === 'zh' ? 'zh-CN' : 'en-US'
       })
       console.log('Transcription response:', transcriptionResponse.data)
       const transcribedText = transcriptionResponse.data.data.text
@@ -302,9 +302,12 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
         }
         setConversationHistory(prev => [...prev, userMessage])
         
-        // If in speaking mode, analyze pronunciation
+        // If in speaking mode, analyze pronunciation (don't wait for it to complete)
         if (currentMode === 'speaking' && currentSpeakingPrompt) {
-          await analyzePronunciation(base64Audio, transcribedText)
+          // Run pronunciation analysis in background, don't await it
+          analyzePronunciation(base64Audio, transcribedText, uiLanguage === 'zh' ? 'zh-CN' : 'en-US').catch(error => {
+            console.error('Pronunciation analysis failed, but continuing with conversation:', error)
+          })
         }
         
         // Process with AI
@@ -333,33 +336,38 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       // Send to conversation API with proper message format
       const response = await apiService.sendMessage({
         conversationId: conversationId,
-        message: text
+        message: text,
+        uiLanguage: uiLanguage
       })
+      
+      // Extract response content with better fallback handling
+      const responseContent = response.data.data?.response || response.data.data?.content || response.data.data?.text || response.data.content || response.data.text || 'Sorry, I could not generate a response.';
       
       const aiMessage = {
         type: 'ai' as const,
-        content: response.data.data.content || response.data.data.text || '',
+        content: responseContent,
         timestamp: new Date()
       }
       setConversationHistory(prev => [...prev, aiMessage])
       
       // Update AI response state
       setAiResponse({
-        text: response.data.data.content || response.data.data.text || '',
-        confidence: response.data.data.metadata?.confidence || 0.8,
-        sentiment: response.data.data.metadata?.sentiment || 'neutral'
+        text: responseContent,
+        confidence: response.data.data?.confidence || response.data.data?.metadata?.confidence || response.data.metadata?.confidence || 0.8,
+        sentiment: response.data.data?.sentiment || response.data.data?.metadata?.sentiment || response.data.metadata?.sentiment || 'neutral'
       })
       
       // Detect learning mode from AI response
       console.log('AI Response:', response.data);
       console.log('Response data keys:', Object.keys(response.data));
-      console.log('Response content:', response.data.data.content);
-      detectLearningMode(response.data.data.content || response.data.data.text || '')
+      console.log('Response content:', responseContent);
+      if (responseContent && responseContent.trim()) {
+        detectLearningMode(responseContent)
+      }
       
       // Auto-speak AI response
-      const aiText = response.data.data.content || response.data.data.text || ''
-      if (aiText) {
-        await playAudio(aiText)
+      if (responseContent && responseContent.trim()) {
+        await playAudio(responseContent)
       }
       
     } catch (error) {
@@ -438,13 +446,14 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
     }
   }
 
-  const analyzePronunciation = async (base64Audio: string, transcribedText: string) => {
+  const analyzePronunciation = async (base64Audio: string, transcribedText: string, languageCode: string = 'en-US') => {
     setIsAnalyzing(true)
     try {
       const response = await apiService.analyzePronunciation({
         audioData: base64Audio,
         text: transcribedText,
-        expectedText: currentSpeakingPrompt
+        expectedText: currentSpeakingPrompt,
+        languageCode: languageCode
       })
       
       const feedback = response.data
@@ -888,6 +897,7 @@ const AITutorRoom: React.FC<AITutorRoomProps> = ({ onBack }) => {
       const formData = new FormData()
       formData.append('content', readingPrompt)
       formData.append('userId', 'default')
+      formData.append('uiLanguage', uiLanguage)
 
       const analysisResponse = await apiService.analyzeContent(formData)
       const analysis = analysisResponse.data.data

@@ -37,7 +37,7 @@ export const apiService = {
   transcribeAudio: (audioData: any) => api.post('/api/speech/transcribe', audioData, { timeout: 60000 }), // 60 seconds for transcription
   synthesizeSpeech: (textData: any) => api.post('/api/speech/synthesize', textData),
   getPronunciationFeedback: (feedbackData: any) => api.post('/api/speech/pronunciation-feedback', feedbackData),
-  analyzePronunciation: (pronunciationData: any) => api.post('/api/speech/analyze-pronunciation', pronunciationData),
+  analyzePronunciation: (pronunciationData: any) => api.post('/api/speech/analyze-pronunciation', pronunciationData, { timeout: 60000 }), // 60 seconds for pronunciation analysis
 
   // Writing services
   analyzeWriting: (writingData: any) => api.post('/api/writing/analyze', writingData),
